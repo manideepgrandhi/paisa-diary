@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paisa Diary · Daily Expenses</title>
+<meta name="description" content="Track your daily expenses in ₹. Works offline, data stays on your phone.">
+<meta name="theme-color" content="#0f9d74" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1a17" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Paisa Diary">
+<meta name="application-name" content="Paisa Diary">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230f9d74'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" id="appleIcon" href="">
+<link rel="manifest" id="manifestLink" href="">
+<style>
+:root{
+  --bg:#f4f6f5; --card:#ffffff; --text:#14201c; --muted:#62716b; --line:#e3e8e6;
+  --brand:#0f9d74; --brand-2:#0b7d5d; --brand-soft:#e2f5ee; --danger:#d93f3f; --danger-soft:#fdeaea;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(15,40,30,.07);
+  --radius:18px;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1311; --card:#16201d; --text:#e8efec; --muted:#93a39d; --line:#24312d;
+    --brand:#2fc493; --brand-2:#5ad6ad; --brand-soft:#123129; --danger:#ff6b6b; --danger-soft:#3a1d1d;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  padding:calc(var(--sat) + 0px) calc(var(--sar) + 0px) calc(var(--sab) + 96px) calc(var(--sal) + 0px);
+  min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(var(--sat) + 10px) 0 8px;margin-top:calc(-1 * var(--sat))}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:750;font-size:1.15rem;letter-spacing:-.01em}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:800}
+.icon-btn{min-width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:1.25rem}
+.icon-btn:active{transform:scale(.96)}
+.hero{margin-top:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:22px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+@media (prefers-color-scheme: dark){.hero{background:linear-gradient(135deg,#127a5c,#0d5642)}}
+.hero .lbl{opacity:.88;font-size:.9rem;font-weight:600}
+.hero .big{font-size:2.4rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:2px 0 4px;word-break:break-word}
+.hero .quip{font-size:.85rem;opacity:.9;min-height:1.2em}
+.hero .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.pill{background:rgba(255,255,255,.16);border-radius:14px;padding:10px 12px}
+.pill .lbl{font-size:.78rem}
+.pill .val{font-weight:750;font-size:1.1rem;word-break:break-word}
+.monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 10px}
+.monthbar .m{flex:1;text-align:center;font-weight:700;font-size:1.05rem}
+.monthbar .m small{display:block;font-weight:500;color:var(--muted);font-size:.82rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 12px;font-size:1rem;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+.card h2 span{color:var(--muted);font-weight:600;font-size:.88rem}
+.breakdown{display:flex;gap:16px;align-items:center}
+.donut{flex:0 0 120px;width:120px;height:120px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .ctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:.72rem;color:var(--muted);line-height:1.2}
+.donut .ctr b{display:block;color:var(--text);font-size:.92rem}
+.bars{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+.bar .t{display:flex;justify-content:space-between;gap:8px;font-size:.88rem}
+.bar .t .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .t .a{font-weight:650;white-space:nowrap}
+.bar .track{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:4px}
+.bar .fill{height:100%;border-radius:99px;transition:width .4s ease}
+@media (max-width:370px){.breakdown{flex-direction:column;align-items:stretch}.donut{align-self:center}}
+.day{margin-bottom:14px}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;padding:4px 4px 8px;color:var(--muted);font-size:.88rem;font-weight:650}
+.dayhead b{color:var(--text)}
+.list{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:12px 8px 12px 14px;border-top:1px solid var(--line);min-height:64px}
+.item:first-child{border-top:0}
+.emo{flex:0 0 42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem}
+.info{flex:1;min-width:0}
+.info .c{font-weight:650}
+.info .n{color:var(--muted);font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt{font-weight:750;white-space:nowrap}
+.acts{display:flex}
+.acts button{width:40px;height:44px;border:0;background:none;border-radius:10px;font-size:1.05rem;color:var(--muted)}
+.acts button:active{background:var(--line)}
+.empty{text-align:center;padding:34px 18px;color:var(--muted)}
+.empty .e{font-size:2.6rem}
+.empty b{display:block;color:var(--text);margin:6px 0 2px;font-size:1.05rem}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 16px);z-index:10;
+  height:58px;padding:0 26px;border-radius:999px;border:0;background:var(--brand);color:#fff;font-weight:750;font-size:1.05rem;
+  box-shadow:0 8px 24px rgba(15,157,116,.4);display:flex;align-items:center;gap:8px;white-space:nowrap}
+@media (prefers-color-scheme: dark){.fab{color:#06231a;box-shadow:0 8px 24px rgba(0,0,0,.5)}}
+.fab:active{transform:translateX(-50%) scale(.97)}
+.fab .plus{font-size:1.5rem;line-height:1}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:560px;margin:0 auto;background:var(--card);
+  border-radius:22px 22px 0 0;padding:10px 16px calc(var(--sab) + 18px);transform:translateY(105%);transition:transform .25s ease;
+  max-height:92vh;overflow:auto;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+.sheet.open{transform:none}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 10px}
+.sheet h3{margin:4px 0 14px;font-size:1.15rem}
+.amtwrap{display:flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:16px;padding:6px 14px;background:var(--bg)}
+.amtwrap:focus-within{border-color:var(--brand)}
+.amtwrap .r{font-size:1.9rem;font-weight:700;color:var(--muted)}
+.amtwrap input{border:0;outline:0;background:transparent;font-size:2rem;font-weight:800;width:100%;min-width:0;padding:6px 0}
+.field{margin-top:14px}
+.field label,.field .lab{display:block;font-size:.85rem;font-weight:650;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 14px;outline:0}
+.field input:focus{border-color:var(--brand)}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cat{border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:8px 2px;min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.74rem;font-weight:600}
+.cat .ce{font-size:1.4rem}
+.cat[aria-checked="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.sheet .btns{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font-weight:700}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+@media (prefers-color-scheme: dark){.btn.primary{color:#06231a}}
+.btn.danger{color:var(--danger);border-color:var(--danger-soft);background:var(--danger-soft)}
+.err{color:var(--danger);font-size:.85rem;min-height:1.2em;margin-top:6px}
+.menu-list{display:flex;flex-direction:column;gap:8px}
+.menu-list button{display:flex;align-items:center;gap:12px;height:56px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 16px;font-weight:650;text-align:left}
+.menu-list button span{font-size:1.25rem}
+.menu-list .danger{color:var(--danger)}
+.hint{color:var(--muted);font-size:.8rem;margin-top:12px;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(var(--sab) + 90px);transform:translate(-50%,20px);background:#1d2b27;color:#fff;padding:12px 18px;border-radius:14px;font-size:.92rem;z-index:30;opacity:0;pointer-events:none;transition:all .25s;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap topbar">
+    <div class="brand"><div class="logo">₹</div>Paisa Diary</div>
+    <button class="icon-btn" id="menuBtn" aria-label="Menu: export, import, backup">⋯</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" aria-live="polite">
+    <div class="lbl">Spent today</div>
+    <div class="big" id="todayTotal">₹0</div>
+    <div class="quip" id="quip"></div>
+    <div class="row">
+      <div class="pill"><div class="lbl">This week</div><div class="val" id="weekTotal">₹0</div></div>
+      <div class="pill"><div class="lbl">This month</div><div class="val" id="monthTotalNow">₹0</div></div>
+    </div>
+  </section>
+
+  <div class="monthbar">
+    <button class="icon-btn" id="prevM" aria-label="Previous month">‹</button>
+    <div class="m"><span id="monthLabel"></span><small id="monthSub"></small></div>
+    <button class="icon-btn" id="nextM" aria-label="Next month">›</button>
+  </div>
+
+  <section class="card" id="breakdownCard">
+    <h2>Where it went <span id="bdTotal"></span></h2>
+    <div id="breakdown"></div>
+  </section>
+
+  <section id="days"></section>
+</main>
+
+<button class="fab" id="addBtn"><span class="plus">+</span> Add expense</button>
+
+<div class="scrim" id="scrim"></div>
+
+<form class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" novalidate>
+  <div class="grab"></div>
+  <h3 id="sheetTitle">Add expense</h3>
+  <label class="sr" for="fAmount">Amount in rupees</label>
+  <div class="amtwrap"><span class="r">₹</span><input id="fAmount" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done"></div>
+  <div class="err" id="fErr"></div>
+  <div class="field">
+    <span class="lab" id="catLab">Category</span>
+    <div class="cats" id="cats" role="radiogroup" aria-labelledby="catLab"></div>
+  </div>
+  <div class="field">
+    <label for="fNote">Note (optional)</label>
+    <input id="fNote" maxlength="120" placeholder="e.g. Chai & samosa with team" autocomplete="off" enterkeyhint="done">
+  </div>
+  <div class="field">
+    <label for="fDate">Date</label>
+    <input id="fDate" type="date">
+  </div>
+  <div class="btns">
+    <button type="button" class="btn" id="cancelBtn">Cancel</button>
+    <button type="submit" class="btn primary" id="saveBtn">Save</button>
+  </div>
+</form>
+
+<div class="sheet" id="menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+  <div class="grab"></div>
+  <h3 id="menuTitle">Backup & export</h3>
+  <div class="menu-list">
+    <button id="exCsv"><span>📊</span>Export CSV (for Excel / Sheets)</button>
+    <button id="exJson"><span>💾</span>Download JSON backup</button>
+    <button id="imJson"><span>📥</span>Import JSON backup</button>
+    <button id="wipe" class="danger"><span>🧹</span>Delete all data</button>
+  </div>
+  <input type="file" id="fileIn" accept="application/json,.json" hidden>
+  <p class="hint">Your data lives only on this device (in this browser). Back it up now and then: phones get lost, backups don't. 📦</p>
+  <div class="btns"><button type="button" class="btn" id="menuClose">Close</button></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='paisa-diary-expenses-v1';
+var CATS=[
+  {id:'Food',e:'🍛',c:'#f59e0b'},
+  {id:'Transport',e:'🛺',c:'#3b82f6'},
+  {id:'Groceries',e:'🥦',c:'#22c55e'},
+  {id:'Shopping',e:'🛍️',c:'#ec4899'},
+  {id:'Bills',e:'🧾',c:'#8b5cf6'},
+  {id:'Entertainment',e:'🎬',c:'#ef4444'},
+  {id:'Health',e:'💊',c:'#14b8a6'},
+  {id:'Other',e:'📦',c:'#64748b'}
+];
+var CATMAP={};CATS.forEach(function(c){CATMAP[c.id]=c;});
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- money & dates ---------- */
+var fmt2=new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2,maximumFractionDigits:2});
+var fmt0=new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:0,maximumFractionDigits:0});
+function money(n){n=Math.round(n*100)/100;return (n%1===0?fmt0:fmt2).format(n);}
+function pad(n){return (n<10?'0':'')+n;}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parseYmd(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function today(){return ymd(new Date());}
+function monthKey(s){return s.slice(0,7);}
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthName(mk){var p=mk.split('-');return MONTHS[+p[1]-1]+' '+p[0];}
+function weekStart(){var d=new Date();var dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow);return ymd(d);} // Monday
+function dayLabel(s){
+  var t=today(),d=parseYmd(s),y=new Date();y.setDate(y.getDate()-1);
+  if(s===t)return 'Today';
+  if(s===ymd(y))return 'Yesterday';
+  return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+}
+
+/* ---------- storage ---------- */
+var data=[];
+function load(){
+  try{var raw=localStorage.getItem(KEY);data=raw?JSON.parse(raw):[];if(!Array.isArray(data))data=[];}
+  catch(e){data=[];}
+  data=data.filter(valid).map(clean);
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(data));}
+  catch(e){toast('Could not save. Storage might be full or blocked 😬');}
+}
+function valid(x){return x&&typeof x==='object'&&isFinite(+x.amount)&&+x.amount>0&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||'');}
+function clean(x){return {id:String(x.id||uid()),amount:Math.round(+x.amount*100)/100,category:CATMAP[x.category]?x.category:'Other',note:String(x.note||'').slice(0,120),date:x.date,createdAt:+x.createdAt||Date.now()};}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+
+/* ---------- state ---------- */
+var viewMonth=monthKey(today());
+var editingId=null, selCat='Food';
+
+/* ---------- render ---------- */
+function sum(list){return list.reduce(function(a,b){return a+b.amount;},0);}
+function quipFor(n){
+  if(n===0)return 'Wallet is resting peacefully. 🧘';
+  if(n<200)return 'Chai-level spending. Respect. ☕';
+  if(n<1000)return 'Reasonable. Your wallet nods approvingly. 👍';
+  if(n<5000)return 'Busy day for the wallet. 💸';
+  return 'Wallet has filed a formal complaint. 😅';
+}
+function render(){
+  var t=today(),ws=weekStart(),mNow=monthKey(t);
+  var tt=sum(data.filter(function(x){return x.date===t;}));
+  $('todayTotal').textContent=money(tt);
+  $('quip').textContent=quipFor(tt);
+  $('weekTotal').textContent=money(sum(data.filter(function(x){return x.date>=ws&&x.date<=t;})));
+  $('monthTotalNow').textContent=money(sum(data.filter(function(x){return monthKey(x.date)===mNow;})));
+
+  var month=data.filter(function(x){return monthKey(x.date)===viewMonth;});
+  var mt=sum(month);
+  $('monthLabel').textContent=monthName(viewMonth);
+  $('monthSub').textContent=month.length?(money(mt)+' · '+month.length+' expense'+(month.length>1?'s':'')):'No expenses';
+  $('nextM').disabled=viewMonth>=mNow; $('nextM').style.opacity=viewMonth>=mNow?.35:1;
+  $('bdTotal').textContent=month.length?money(mt):'';
+  renderBreakdown(month,mt);
+  renderDays(month);
+}
+function renderBreakdown(month,mt){
+  var el=$('breakdown');
+  if(!month.length){
+    el.innerHTML='<div class="empty" style="padding:14px 6px"><div class="e">🍩</div><b>Nothing to chart yet</b>This donut is hungry for data.</div>';
+    return;
+  }
+  var by={};month.forEach(function(x){by[x.category]=(by[x.category]||0)+x.amount;});
+  var rows=CATS.filter(function(c){return by[c.id];}).map(function(c){return {c:c,v:by[c.id]};}).sort(function(a,b){return b.v-a.v;});
+  var R=15.9155,C=100,off=0,segs='';
+  rows.forEach(function(r){
+    var p=r.v/mt*100;
+    segs+='<circle r="'+R+'" cx="21" cy="21" fill="none" stroke="'+r.c.c+'" stroke-width="6" stroke-dasharray="'+Math.max(p-(rows.length>1?.6:0),.01)+' '+(C-Math.max(p-(rows.length>1?.6:0),.01))+'" stroke-dashoffset="'+(-off)+'"></circle>';
+    off+=p;
+  });
+  var top=rows[0];
+  var html='<div class="breakdown"><div class="donut"><svg viewBox="0 0 42 42" aria-hidden="true"><circle r="'+R+'" cx="21" cy="21" fill="none" stroke="var(--line)" stroke-width="6"></circle>'+segs+'</svg><div class="ctr"><div>Top<b>'+top.c.e+' '+Math.round(top.v/mt*100)+'%</b></div></div></div><div class="bars">';
+  rows.forEach(function(r){
+    var p=r.v/mt*100;
+    html+='<div class="bar"><div class="t"><span class="n">'+r.c.e+' '+r.c.id+' <span style="color:var(--muted)">'+Math.round(p)+'%</span></span><span class="a">'+money(r.v)+'</span></div><div class="track"><div class="fill" style="width:'+p.toFixed(1)+'%;background:'+r.c.c+'"></div></div></div>';
+  });
+  el.innerHTML=html+'</div></div>';
+}
+function esc(s){return s.replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function renderDays(month){
+  var el=$('days');
+  if(!month.length){
+    var isNow=viewMonth===monthKey(today());
+    el.innerHTML='<div class="card empty"><div class="e">'+(isNow?'🪙':'🦗')+'</div><b>'+(isNow?'No expenses yet this month':'Crickets in '+monthName(viewMonth))+'</b>'+(isNow?'Either you’re a saint, or you haven’t logged anything. Tap <b style="display:inline;margin:0">+ Add expense</b> to start.':'Nothing was logged this month. Very mysterious. Very frugal.')+'</div>';
+    return;
+  }
+  var groups={};
+  month.forEach(function(x){(groups[x.date]=groups[x.date]||[]).push(x);});
+  var days=Object.keys(groups).sort().reverse();
+  el.innerHTML=days.map(function(d){
+    var items=groups[d].sort(function(a,b){return b.createdAt-a.createdAt;});
+    return '<div class="day"><div class="dayhead"><b>'+dayLabel(d)+'</b><span>'+money(sum(items))+'</span></div><div class="list">'+items.map(function(x){
+      var c=CATMAP[x.category];
+      return '<div class="item"><div class="emo" style="background:'+c.c+'22">'+c.e+'</div><div class="info"><div class="c">'+c.id+'</div>'+(x.note?'<div class="n">'+esc(x.note)+'</div>':'')+'</div><div class="amt">'+money(x.amount)+'</div><div class="acts"><button data-edit="'+x.id+'" aria-label="Edit '+c.id+' '+money(x.amount)+'">✏️</button><button data-del="'+x.id+'" aria-label="Delete '+c.id+' '+money(x.amount)+'">🗑️</button></div></div>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+
+/* ---------- sheet ---------- */
+function buildCats(){
+  $('cats').innerHTML=CATS.map(function(c){return '<button type="button" class="cat" role="radio" aria-checked="false" data-cat="'+c.id+'"><span class="ce">'+c.e+'</span>'+(c.id==='Entertainment'?'Fun':c.id)+'</button>';}).join('');
+}
+function setCat(id){selCat=id;[].forEach.call(document.querySelectorAll('.cat'),function(b){b.setAttribute('aria-checked',b.dataset.cat===id?'true':'false');});}
+var openEl=null;
+function open(el){openEl=el;$('scrim').classList.add('open');el.classList.add('open');}
+function close(){if(openEl)openEl.classList.remove('open');$('scrim').classList.remove('open');openEl=null;}
+function openForm(x){
+  editingId=x?x.id:null;
+  $('sheetTitle').textContent=x?'Edit expense':'Add expense';
+  $('saveBtn').textContent=x?'Update':'Save';
+  $('fAmount').value=x?String(x.amount):'';
+  $('fNote').value=x?x.note:'';
+  $('fDate').value=x?x.date:(viewMonth===monthKey(today())?today():today());
+  $('fDate').max=today();
+  $('fErr').textContent='';
+  setCat(x?x.category:selCat||'Food');
+  open($('sheet'));
+  setTimeout(function(){$('fAmount').focus();},250);
+}
+function parseAmount(s){
+  s=String(s).replace(/[₹,\s]/g,'');
+  if(!/^\d*\.?\d*$/.test(s)||s===''||s==='.')return NaN;
+  return Math.round(parseFloat(s)*100)/100;
+}
+$('sheet').addEventListener('submit',function(e){
+  e.preventDefault();
+  var a=parseAmount($('fAmount').value);
+  if(!(a>0)){$('fErr').textContent='Enter an amount. Even ₹1 counts! 🙂';$('fAmount').focus();return;}
+  if(a>10000000){$('fErr').textContent='That’s over ₹1 crore. Bought a flat? Please double-check. 🏠';return;}
+  var d=$('fDate').value||today();
+  var note=$('fNote').value.trim();
+  if(editingId){
+    var x=data.find(function(y){return y.id===editingId;});
+    if(x){x.amount=a;x.category=selCat;x.note=note;x.date=d;}
+    toast('Updated ✏️');
+  }else{
+    data.push({id:uid(),amount:a,category:selCat,note:note,date:d,createdAt:Date.now()});
+    toast('Added '+money(a)+' '+CATMAP[selCat].e);
+  }
+  save();viewMonth=monthKey(d);close();render();
+});
+$('cats').addEventListener('click',function(e){var b=e.target.closest('.cat');if(b)setCat(b.dataset.cat);});
+$('cancelBtn').onclick=close;
+$('scrim').onclick=close;
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+$('addBtn').onclick=function(){openForm(null);};
+$('days').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.edit){openForm(data.find(function(x){return x.id===b.dataset.edit;}));}
+  else if(b.dataset.del){
+    var x=data.find(function(y){return y.id===b.dataset.del;});if(!x)return;
+    if(confirm('Delete '+money(x.amount)+' ('+x.category+(x.note?': '+x.note:'')+')?')){
+      data=data.filter(function(y){return y.id!==x.id;});save();render();toast('Deleted. Poof! 💨');
+    }
+  }
+});
+$('prevM').onclick=function(){var d=parseYmd(viewMonth+'-01');d.setMonth(d.getMonth()-1);viewMonth=monthKey(ymd(d));render();};
+$('nextM').onclick=function(){var d=parseYmd(viewMonth+'-01');d.setMonth(d.getMonth()+1);var k=monthKey(ymd(d));if(k<=monthKey(today())){viewMonth=k;render();}};
+
+/* ---------- menu: export / import ---------- */
+$('menuBtn').onclick=function(){open($('menu'));};
+$('menuClose').onclick=close;
+function download(name,text,type){
+  var blob=new Blob([text],{type:type});var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+}
+function csvCell(v){v=String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+$('exCsv').onclick=function(){
+  if(!data.length){toast('Nothing to export yet 🙃');return;}
+  var rows=[['Date','Category','Amount (INR)','Note']].concat(data.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:a.createdAt-b.createdAt;}).map(function(x){return [x.date,x.category,x.amount.toFixed(2),x.note];}));
+  download('expenses-'+today()+'.csv','\ufeff'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n'),'text/csv;charset=utf-8');
+  toast('CSV exported 📊');
+};
+$('exJson').onclick=function(){
+  download('paisa-diary-backup-'+today()+'.json',JSON.stringify({app:'paisa-diary',version:1,exportedAt:new Date().toISOString(),expenses:data},null,2),'application/json');
+  toast('Backup saved 💾');
+};
+$('imJson').onclick=function(){$('fileIn').click();};
+$('fileIn').onchange=function(){
+  var f=this.files[0];this.value='';if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var j=JSON.parse(r.result);var list=Array.isArray(j)?j:j.expenses;
+      if(!Array.isArray(list))throw 0;
+      var good=list.filter(valid).map(clean);
+      if(!good.length){toast('No valid expenses in that file 🤔');return;}
+      var ids={};data.forEach(function(x){ids[x.id]=1;});
+      var fresh=good.filter(function(x){return !ids[x.id];});
+      if(!confirm('Import '+fresh.length+' new expense'+(fresh.length===1?'':'s')+' ('+(good.length-fresh.length)+' already here will be skipped)?'))return;
+      data=data.concat(fresh);save();close();render();toast('Imported '+fresh.length+' 📥');
+    }catch(e){toast('That doesn’t look like a Paisa Diary backup 😕');}
+  };
+  r.readAsText(f);
+};
+$('wipe').onclick=function(){
+  if(!data.length){toast('Already squeaky clean ✨');return;}
+  if(confirm('Delete ALL '+data.length+' expenses from this device? This can’t be undone. (Maybe download a backup first?)')){
+    data=[];save();close();render();toast('All clear. Fresh start! 🌱');
+  }
+};
+
+/* ---------- toast ---------- */
+var tt;
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2200);}
+
+/* ---------- home-screen manifest & icon (generated inline) ---------- */
+function makeIcon(size){
+  try{
+    var c=document.createElement('canvas');c.width=c.height=size;var x=c.getContext('2d');
+    x.fillStyle='#0f9d74';x.fillRect(0,0,size,size);
+    x.fillStyle='#fff';x.font='bold '+Math.round(size*.62)+'px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';
+    x.fillText('₹',size/2,size*.54);return c.toDataURL('image/png');
+  }catch(e){return '';}
+}
+try{
+  var i192=makeIcon(192),i512=makeIcon(512);
+  $('appleIcon').href=makeIcon(180);
+  var base=location.href.split('#')[0];
+  var man={name:'Paisa Diary',short_name:'Paisa Diary',description:'Daily expense tracker (₹)',start_url:base,scope:base.replace(/[^\/]*$/,''),display:'standalone',background_color:'#f4f6f5',theme_color:'#0f9d74',
+    icons:[{src:i192,sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:i512,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
+  $('manifestLink').href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
+}catch(e){}
+
+/* ---------- init ---------- */
+buildCats();load();render();
+// refresh "today" if app left open past midnight / when returning
+document.addEventListener('visibilitychange',function(){if(!document.hidden)render();});
+window.addEventListener('storage',function(e){if(e.key===KEY){load();render();}});
+})();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+</script>
+</body>
+</html>
