@@ -109,7 +109,10 @@ html[data-theme=dark] .fab{color:#06231a;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .amtwrap{display:flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:16px;padding:6px 14px;background:var(--bg)}
 .amtwrap:focus-within{border-color:var(--brand)}
 .amtwrap .r{font-size:1.9rem;font-weight:700;color:var(--muted)}
-.amtwrap input{border:0;outline:0;background:transparent;font-size:2rem;font-weight:800;width:100%;min-width:0;padding:6px 0}
+.amtwrap input{border:0;outline:0;background:transparent;font-size:2rem;font-weight:800;width:100%;min-width:0;padding:6px 0;appearance:none;-moz-appearance:textfield}
+.amtchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.amtchips button{height:36px;padding:0 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--bg);font-weight:700;font-size:.85rem;color:var(--text)}
+.amtchips button:active,.amtchips button:focus-visible{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-2)}
 .field{margin-top:14px}
 .field label,.field .lab{display:block;font-size:.85rem;font-weight:650;color:var(--muted);margin-bottom:6px}
 .field input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 14px;outline:0}
@@ -214,8 +217,6 @@ html[data-theme=dark] .tcount{color:#06231a}
 .callout .ut b{display:block;font-size:.95rem;margin-bottom:2px}
 #hType{width:100%}
 .hold-note{color:var(--muted);font-size:.8rem;margin:0 0 8px}
-.computed{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--brand-soft);font-size:.82rem}
-.computed:empty{display:none}
 </style>
 <!--mg:head inline--><style id="mg-shared-css">
 /* mg-shared.css: shared design tokens, header bar and footer. Single source: manideepgrandhi.github.io/assets/ */
@@ -639,14 +640,10 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
     <div class="big" id="savNet">₹0</div>
     <div class="quip" id="savQuip"></div>
     <div class="row">
-      <div class="pill"><div class="lbl">Invested</div><div class="val" id="savInvested">₹0</div></div>
-      <div class="pill"><div class="lbl">Gain / loss</div><div class="val" id="savGain">₹0</div></div>
-    </div>
-    <div class="row">
       <div class="pill"><div class="lbl">This month spent</div><div class="val" id="savSpent">₹0</div></div>
       <div class="pill"><div class="lbl">This month SIPs</div><div class="val" id="savSips">₹0</div></div>
     </div>
-    <div class="note">Current values are typed in by you, or units × price when you fill both. Nothing here logs into a fund house, broker or bank.</div>
+    <div class="note">Amounts are what you type in. Nothing here logs into a fund house, broker or bank.</div>
   </section>
 
   <section class="card" id="bdSavCard" style="margin-top:14px">
@@ -687,7 +684,13 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   <div class="grab"></div>
   <h3 id="sheetTitle">Add expense</h3>
   <label class="sr" for="fAmount">Amount in rupees</label>
-  <div class="amtwrap"><span class="r">₹</span><input id="fAmount" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done"></div>
+  <div class="amtwrap"><span class="r">₹</span><input id="fAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  <div class="amtchips" id="fAmtChips" role="group" aria-label="Add a quick amount">
+    <button type="button" data-add="100">+100</button>
+    <button type="button" data-add="500">+500</button>
+    <button type="button" data-add="1000">+1,000</button>
+    <button type="button" data-add="5000">+5,000</button>
+  </div>
   <div class="err" id="fErr"></div>
   <div class="field">
     <span class="lab" id="catLab">Category</span>
@@ -750,7 +753,7 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   </div>
   <div class="field">
     <label for="rAmount">Amount</label>
-    <div class="amtwrap"><span class="r">₹</span><input id="rAmount" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done"></div>
+    <div class="amtwrap"><span class="r">₹</span><input id="rAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
   </div>
   <div class="err" id="rErr"></div>
   <div class="field" id="rCatWrap" style="margin-top:6px">
@@ -794,17 +797,17 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
 <form class="sheet" id="hsheet" role="dialog" aria-modal="true" aria-labelledby="hTitle" novalidate>
   <div class="grab"></div>
   <h3 id="hTitle">Add a holding</h3>
-  <div class="two" style="margin-top:0">
-    <div class="field" style="margin-top:0">
-      <label for="hInv">Amount invested</label>
-      <div class="amtwrap"><span class="r">₹</span><input id="hInv" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="next"></div>
-    </div>
-    <div class="field" style="margin-top:0">
-      <label for="hCur">Current value</label>
-      <div class="amtwrap"><span class="r">₹</span><input id="hCur" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-    </div>
+  <label class="sr" for="hAmount">Amount in rupees</label>
+  <div class="amtwrap">
+    <span class="r">₹</span>
+    <input id="hAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="next" autocapitalize="off" autocorrect="off" spellcheck="false">
   </div>
-  <div class="computed" id="hComputed"></div>
+  <div class="amtchips" id="hAmtChips" role="group" aria-label="Add a quick amount">
+    <button type="button" data-add="100">+100</button>
+    <button type="button" data-add="500">+500</button>
+    <button type="button" data-add="1000">+1,000</button>
+    <button type="button" data-add="5000">+5,000</button>
+  </div>
   <div class="err" id="hErr"></div>
   <div class="field">
     <label for="hType">Type</label>
@@ -817,19 +820,6 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   <div class="field">
     <label for="hName">Name</label>
     <input id="hName" maxlength="80" placeholder="e.g. SBI 3-year FD, Parag Parikh Flexi Cap" autocomplete="off" enterkeyhint="next">
-  </div>
-  <div id="hUnitsWrap">
-    <div class="two">
-      <div class="field">
-        <label for="hUnits" id="hUnitsLab">Units (optional)</label>
-        <input id="hUnits" inputmode="decimal" placeholder="e.g. 50 shares, 10.25 units" autocomplete="off">
-      </div>
-      <div class="field">
-        <label for="hPrice">Price / NAV per unit (optional)</label>
-        <div class="amtwrap"><span class="r">₹</span><input id="hPrice" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-      </div>
-    </div>
-    <p class="hint" style="text-align:left;margin-top:8px">If you fill both units and price, current value becomes units × price. Otherwise type the current value yourself.</p>
   </div>
   <div id="hRateWrap">
     <div class="two">
@@ -850,7 +840,7 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
       <div class="two" style="margin-top:10px">
         <div class="field" style="margin-top:0">
           <label for="hSipAmt">Monthly amount</label>
-          <div class="amtwrap"><span class="r">₹</span><input id="hSipAmt" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          <div class="amtwrap"><span class="r">₹</span><input id="hSipAmt" type="text" inputmode="decimal" autocomplete="off" placeholder="0" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
         </div>
         <div class="field" style="margin-top:0">
           <label for="hSipDay">Day of month</label>
@@ -992,10 +982,7 @@ var TYPEMAP={};TYPES.forEach(function(t){TYPEMAP[t.id]=t;});
 var COMMON_TYPES=['mf-sip','mf-lumpsum','stocks','fd','ppf','epf','gold'];
 // Interest rate / maturity fields
 var TENURE_TYPES={'fd':1,'rd':1,'corp-fd':1,'bonds':1,'ppf':1,'ssy':1,'nsc':1,'kvp':1,'po-mis':1,'scss':1,'po-td':1,'sgb':1,'insurance':1};
-// Units and price / NAV fields
-var UNIT_TYPES={'mf-sip':1,'mf-lumpsum':1,'stocks':1,'etf':1,'gold':1,'silver':1,'sgb':1,'crypto':1};
 function typeHasTenure(id,h){return !!TENURE_TYPES[id]||!!(h&&(h.rate||h.maturity));}
-function typeHasUnits(id,h){return !!UNIT_TYPES[id]||!!(h&&h.units>0);}
 var $=function(id){return document.getElementById(id);};
 
 /* ---------- money & dates ---------- */
@@ -1096,8 +1083,15 @@ function migrateRuleKinds(){
     if(needs){localStorage.setItem(RKEY,JSON.stringify({version:1,rules:rules}));}
   }catch(e){}
 }
+function migrateHoldingAmount(h){
+  // New holdings store `amount`. Old v3 rows used `invested` (plus current/units, which we ignore).
+  if(h&&isFinite(+h.amount))return Math.round(+h.amount*100)/100;
+  if(h&&isFinite(+h.invested))return Math.round(+h.invested*100)/100;
+  return NaN;
+}
 function validHolding(h){
-  if(!(h&&typeof h==='object'&&String(h.name||'').trim()&&isFinite(+h.invested)&&+h.invested>=0))return false;
+  var amt=migrateHoldingAmount(h);
+  if(!(h&&typeof h==='object'&&String(h.name||'').trim()&&isFinite(amt)&&amt>=0))return false;
   if(TYPEMAP[h.type])return true;
   return !!cleanCustomName(h.customType||h.type);
 }
@@ -1111,28 +1105,20 @@ function cleanHolding(h){
     custom=canonicalName(customTypes,h.customType||h.type);
   }
   var o={id:String(h.id||uid()),name:String(h.name||'').trim().slice(0,80),type:type,
-    invested:Math.round((+h.invested||0)*100)/100,current:Math.round((+h.current||0)*100)/100,
+    amount:migrateHoldingAmount(h)||0,
     note:String(h.note||'').slice(0,120),createdAt:+h.createdAt||Date.now(),updatedAt:+h.updatedAt||Date.now()};
   if(custom)o.customType=custom;
-  if(isFinite(+h.units)&&+h.units>0)o.units=+h.units;
-  if(isFinite(+h.price)&&+h.price>=0)o.price=Math.round(+h.price*10000)/10000;
   if(isFinite(+h.rate)&&+h.rate>0)o.rate=+h.rate;
   if(isYmd(h.maturity))o.maturity=h.maturity;
   if(isYmd(h.started))o.started=h.started;
   if(isFinite(+h.sip)&&+h.sip>0){o.sip=Math.round(+h.sip*100)/100;o.sipDay=Math.min(31,Math.max(1,parseInt(h.sipDay,10)||1));}
-  o.current=holdingCurrent(o);
   return o;
 }
-function holdingCurrent(h){
-  if(h.units>0&&h.price>=0&&isFinite(h.units)&&isFinite(h.price))return Math.round(h.units*h.price*100)/100;
-  return Math.round((+h.current||0)*100)/100;
-}
-function hasUnitPrice(h){return h.units>0&&h.price>=0&&isFinite(h.units)&&isFinite(h.price);}
+function holdingAmount(h){return isFinite(+h.amount)?+h.amount:0;}
 function validNw(x){return x&&typeof x.m==='string'&&/^\d{4}-\d{2}$/.test(x.m)&&isFinite(+x.v)&&+x.v>=0;}
-function totalInvested(){return holdings.reduce(function(a,h){return a+h.invested;},0);}
-function totalCurrent(){return holdings.reduce(function(a,h){return a+holdingCurrent(h);},0);}
+function totalAmount(){return holdings.reduce(function(a,h){return a+holdingAmount(h);},0);}
 function snapshotNetworth(){
-  var mk=monthKey(today()),v=Math.round(totalCurrent()*100)/100;
+  var mk=monthKey(today()),v=Math.round(totalAmount()*100)/100;
   var i=-1;networth.forEach(function(x,idx){if(x.m===mk)i=idx;});
   if(i>=0)networth[i]={m:mk,v:v};else networth.push({m:mk,v:v});
   networth=networth.filter(validNw).sort(function(a,b){return a.m<b.m?-1:1;});
@@ -1425,7 +1411,7 @@ function openForm(x){
   editingId=x?x.id:null;
   $('sheetTitle').textContent=x?'Edit expense':'Add expense';
   $('saveBtn').textContent=x?'Update':'Save';
-  $('fAmount').value=x?String(x.amount):'';
+  $('fAmount').value=x?formatAmountNumber(x.amount):'';
   $('fNote').value=x?x.note:'';
   $('fDate').value=x?x.date:today();
   $('fDate').max=today();
@@ -1443,10 +1429,111 @@ function updFHint(){var d=$('fDate').value||today();markRadio($('fFreq'),'freq',
 $('fRec').onchange=function(){$('fRecOpts').hidden=!this.checked;updFHint();};
 $('fFreq').addEventListener('click',function(e){var b=e.target.closest('[data-freq]');if(b){fFreq=b.dataset.freq;updFHint();}});
 $('fDate').addEventListener('change',updFHint);
+function indianGroup(intStr){
+  intStr=String(intStr||'0').replace(/^0+(?=\d)/,'');
+  if(intStr==='')intStr='0';
+  if(intStr.length<=3)return intStr;
+  var last3=intStr.slice(-3),rest=intStr.slice(0,-3),parts=[];
+  while(rest.length>2){parts.unshift(rest.slice(-2));rest=rest.slice(0,-2);}
+  if(rest)parts.unshift(rest);
+  return parts.join(',')+','+last3;
+}
+function formatAmountNumber(n){
+  if(!isFinite(n))return '';
+  n=Math.round(n*100)/100;
+  var neg=n<0;n=Math.abs(n);
+  var parts=n.toFixed(2).split('.');
+  var s=indianGroup(parts[0]);
+  if(parts[1]!=='00')s+='.'+parts[1];
+  return (neg?'-':'')+s;
+}
+function formatAmountLive(raw){
+  raw=String(raw||'');
+  var t=raw.replace(/₹/g,'').replace(/,/g,'').replace(/[^\d.]/g,'');
+  var first=t.indexOf('.');
+  var intPart,decPart,trailDot=false;
+  if(first>=0){
+    intPart=t.slice(0,first).replace(/\D/g,'');
+    decPart=t.slice(first+1).replace(/\D/g,'').slice(0,2);
+    trailDot=decPart===''&&/\./.test(t);
+  }else{
+    intPart=t.replace(/\D/g,'');
+    decPart='';
+  }
+  if(intPart===''&&decPart===''&&!trailDot)return '';
+  if(intPart==='')intPart='0';
+  intPart=intPart.replace(/^0+(?=\d)/,'');
+  var s=indianGroup(intPart);
+  if(trailDot)s+='.';
+  else if(first>=0)s+='.'+decPart;
+  return s;
+}
 function parseAmount(s){
-  s=String(s).replace(/[₹,\s]/g,'');
-  if(!/^\d*\.?\d*$/.test(s)||s===''||s==='.')return NaN;
-  return Math.round(parseFloat(s)*100)/100;
+  s=String(s==null?'':s).trim();
+  if(!s)return NaN;
+  s=s.replace(/₹/g,'').replace(/,/g,'').replace(/\s+/g,'');
+  var mul=1;
+  var m=s.match(/^(-?\d*\.?\d+)(k|lakhs|lakh|l)$/i);
+  if(m){s=m[1];mul=/^k$/i.test(m[2])?1000:100000;}
+  if(!/^-?\d*\.?\d+$/.test(s)||s==='.'||s==='-'||s==='-.')return NaN;
+  var n=parseFloat(s)*mul;
+  if(!isFinite(n))return NaN;
+  return Math.round(n*100)/100;
+}
+function caretRawOffset(value,caret){return String(value||'').slice(0,caret).replace(/,/g,'').length;}
+function caretFromRawOffset(formatted,rawOff){
+  if(rawOff<=0)return 0;
+  var seen=0,i;
+  for(i=0;i<formatted.length;i++){
+    if(formatted.charAt(i)!==','){seen++;if(seen>=rawOff)return i+1;}
+  }
+  return formatted.length;
+}
+function setAmountField(el,n){
+  el.value=isFinite(n)?formatAmountNumber(n):'';
+  try{var len=el.value.length;el.setSelectionRange(len,len);}catch(e){}
+}
+function bindAmountInput(el,chips){
+  if(!el||el.dataset.boundAmt)return;
+  el.dataset.boundAmt='1';
+  el.addEventListener('keydown',function(e){
+    if(e.key==='e'||e.key==='E'||e.key==='+'||e.key==='-')e.preventDefault();
+    if(e.key==='Backspace'&&el.selectionStart===el.selectionEnd&&el.selectionStart>0&&el.value.charAt(el.selectionStart-1)===','){
+      e.preventDefault();
+      var start=el.selectionStart,v=el.value,delAt=start-2;
+      if(delAt<0){el.setSelectionRange(start-1,start-1);return;}
+      var nextRaw=v.slice(0,delAt)+v.slice(start);
+      var next=formatAmountLive(nextRaw);
+      var pos=caretFromRawOffset(next,caretRawOffset(nextRaw,delAt));
+      el.value=next;
+      try{el.setSelectionRange(pos,pos);}catch(err){}
+    }
+  });
+  el.addEventListener('paste',function(e){
+    var t='';
+    try{t=((e.clipboardData||window.clipboardData).getData('text/plain')||(e.clipboardData&&e.clipboardData.getData('text'))||'');}catch(err){}
+    var n=parseAmount(t);
+    if(isFinite(n)&&n>=0){e.preventDefault();setAmountField(el,n);}
+  });
+  el.addEventListener('input',function(){
+    var caret=el.selectionStart,old=el.value;
+    var rawOff=caretRawOffset(old,caret==null?old.length:caret);
+    var next=formatAmountLive(old);
+    if(next===old)return;
+    el.value=next;
+    try{el.setSelectionRange(caretFromRawOffset(next,rawOff),caretFromRawOffset(next,rawOff));}catch(err){}
+  });
+  el.addEventListener('blur',function(){
+    var n=parseAmount(el.value);
+    if(isFinite(n))el.value=formatAmountNumber(n);
+  });
+  if(chips)chips.addEventListener('click',function(e){
+    var b=e.target.closest('[data-add]');if(!b)return;
+    var add=parseInt(b.getAttribute('data-add'),10)||0;
+    var cur=parseAmount(el.value);if(!isFinite(cur)||cur<0)cur=0;
+    setAmountField(el,Math.round((cur+add)*100)/100);
+    el.focus();
+  });
 }
 function amountError(a){if(!(a>0))return 'Enter an amount. Even ₹1 counts! 🙂';if(a>10000000)return 'That’s over ₹1 crore. Bought a flat? Please double-check. 🏠';return '';}
 $('sheet').addEventListener('submit',function(e){
@@ -1528,7 +1615,7 @@ function openRule(r){
   $('rTitle').textContent=r?'Edit recurring payment':'New recurring payment';
   $('rSave').textContent=r?'Update':'Save';
   $('rName').value=r?r.name:'';
-  $('rAmount').value=r?String(r.amount):'';
+  $('rAmount').value=r?formatAmountNumber(r.amount):'';
   $('rStart').value=r?r.start:today();
   $('rEnd').value=r?r.end:'';
   $('rErr').textContent='';
@@ -1679,27 +1766,18 @@ $('wipe').onclick=function(){
 };
 
 /* ---------- savings ---------- */
-function signedMoney(n){n=Math.round(n*100)/100;if(n>0)return '+'+money(n);if(n<0)return '-'+money(Math.abs(n));return money(0);}
-function fmtPct(p){var a=Math.abs(p);var s=(a>=10?a.toFixed(1):a.toFixed(2))+'%';return (p>0?'+':'')+(p<0?'-':'')+s;}
-function pctGain(inv,cur){if(!inv)return cur?100:0;return (cur-inv)/inv*100;}
-function gainClass(n){return n>0?'gain':n<0?'loss':'';}
-function unitLabel(h){var t=holdingType(h);return (t&&t.unit)?t.unit:'units';}
 function shortDateNoYear(s){return parseYmd(s).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
 function csvDate(s){return s?'="'+s+'"':'';} // Excel-safe: stays text, not a date serial
 
 function renderSav(){
-  var inv=totalInvested(), cur=totalCurrent(), g=cur-inv, p=pctGain(inv,cur);
+  var tot=totalAmount();
   var spent=sum(data.filter(function(x){return monthKey(x.date)===monthKey(today());}));
   var sips=sipMonthlyTotal();
-  $('savNet').textContent=money(cur);
-  $('savInvested').textContent=money(inv);
-  $('savGain').textContent=holdings.length?signedMoney(g)+' ('+fmtPct(p)+')':money(0);
+  $('savNet').textContent=money(tot);
   $('savSpent').textContent=money(spent);
   $('savSips').textContent=money(Math.round(sips));
   if(!holdings.length)$('savQuip').textContent='Nothing parked yet. Add a holding to start the pot. 🌱';
-  else if(g>0)$('savQuip').textContent='Up '+money(g)+' on paper since you started putting this money aside. 🌱';
-  else if(g<0)$('savQuip').textContent='Down '+money(Math.abs(g))+' on paper. These are values you typed, not live prices.';
-  else $('savQuip').textContent='Current value matches what you put in.';
+  else $('savQuip').textContent='That’s the sum of the amounts you’ve typed. 🌱';
   renderSavBreakdown();
   renderNw();
   renderSips();
@@ -1723,14 +1801,14 @@ function donutRows(rows,mt,label,color,emoji){
   return html+'</div></div>';
 }
 function renderSavBreakdown(){
-  var el=$('savBreakdown'), tot=totalCurrent();
+  var el=$('savBreakdown'), tot=totalAmount();
   $('donutSub').textContent=holdings.length?money(tot):'';
   if(!holdings.length){
     el.innerHTML='<div class="empty" style="padding:14px 6px"><div class="e">🍩</div><b>Nothing to chart yet</b>This donut is hungry for a first holding.</div>';
     return;
   }
   var by={};
-  holdings.forEach(function(h){var g=TYPEMAP[h.type]?TYPEMAP[h.type].cat:'other';by[g]=(by[g]||0)+holdingCurrent(h);});
+  holdings.forEach(function(h){var g=TYPEMAP[h.type]?TYPEMAP[h.type].cat:'other';by[g]=(by[g]||0)+holdingAmount(h);});
   var rows=GROUPS.filter(function(g){return by[g.id];}).map(function(g){return {g:g,v:by[g.id]};}).sort(function(a,b){return b.v-a.v;});
   el.innerHTML=donutRows(rows,tot,function(r){return r.g.e+' '+r.g.name;},function(r){return r.g.c;},function(r){return r.g.e;});
 }
@@ -1738,7 +1816,7 @@ function renderNw(){
   var el=$('nwChart');
   var pts=networth.slice().sort(function(a,b){return a.m<b.m?-1:1;});
   if(pts.length<2){
-    var cur=totalCurrent();
+    var cur=totalAmount();
     el.innerHTML='<div class="empty" style="padding:10px 6px"><div class="e">📈</div><b>'+(holdings.length?'I’ll chart this from next month':'No history yet')+'</b>'+(holdings.length?'This month’s net worth is '+money(cur)+'. Open the app in the months ahead and the bars will fill in.':'Add a holding and I’ll start a bar for this month.')+'</div>';
     $('nwMin').textContent='';$('nwMax').textContent='';
     return;
@@ -1795,7 +1873,7 @@ function renderMats(){
   }
   $('matList').innerHTML='<div class="uplist">'+mats.map(function(h){
     var typ=holdingType(h);
-    return '<div class="uprow"><span class="w">'+shortDateNoYear(h.maturity)+'</span><span class="nm">'+(typ?typ.e+' ':'')+esc(h.name)+(h.rate?' · '+h.rate+'%':'')+'</span><span class="a">'+money(holdingCurrent(h))+'</span></div>';
+    return '<div class="uprow"><span class="w">'+shortDateNoYear(h.maturity)+'</span><span class="nm">'+(typ?typ.e+' ':'')+esc(h.name)+(h.rate?' · '+h.rate+'%':'')+'</span><span class="a">'+money(holdingAmount(h))+'</span></div>';
   }).join('')+'</div>';
 }
 function renderSavChips(){
@@ -1810,7 +1888,7 @@ $('savChips').addEventListener('click',function(e){
 });
 function renderHoldings(){
   var list=holdings.filter(function(h){return filterCat==='all'||(TYPEMAP[h.type]||TYPEMAP.other).cat===filterCat;});
-  $('holdSub').textContent=list.length?list.length+' · '+money(list.reduce(function(a,h){return a+holdingCurrent(h);},0)):'';
+  $('holdSub').textContent=list.length?list.length+' · '+money(list.reduce(function(a,h){return a+holdingAmount(h);},0)):'';
   var el=$('holdings');
   if(!holdings.length){
     el.innerHTML='<div class="card empty"><div class="e">🌱</div><b>No holdings yet</b>FD, mutual funds, PPF, gold, emergency cash — add whatever you want to track. Tap <b style="display:inline;margin:0">+ Add holding</b>.</div>';
@@ -1822,23 +1900,17 @@ function renderHoldings(){
   }
   var groups=GROUPS.filter(function(g){return list.some(function(h){return (TYPEMAP[h.type]||TYPEMAP.other).cat===g.id;});});
   el.innerHTML=groups.map(function(g){
-    var items=list.filter(function(h){return (TYPEMAP[h.type]||TYPEMAP.other).cat===g.id;}).slice().sort(function(a,b){return holdingCurrent(b)-holdingCurrent(a);});
-    return '<div class="sectitle"><b>'+g.e+' '+g.name+'</b><span>'+money(items.reduce(function(a,h){return a+holdingCurrent(h);},0))+'</span></div><div class="list" style="margin-bottom:14px">'+items.map(function(h){
-      var typ=holdingType(h), cur=holdingCurrent(h), gamt=cur-h.invested, p=pctGain(h.invested,cur);
+    var items=list.filter(function(h){return (TYPEMAP[h.type]||TYPEMAP.other).cat===g.id;}).slice().sort(function(a,b){return holdingAmount(b)-holdingAmount(a);});
+    return '<div class="sectitle"><b>'+g.e+' '+g.name+'</b><span>'+money(items.reduce(function(a,h){return a+holdingAmount(h);},0))+'</span></div><div class="list" style="margin-bottom:14px">'+items.map(function(h){
+      var typ=holdingType(h);
       var bits=[typ.name];
-      if(h.units)bits.push(formatUnits(h.units)+' '+unitLabel(h)+(hasUnitPrice(h)?' × '+money(h.price):''));
       if(h.rate)bits.push(h.rate+'%');
       if(h.maturity)bits.push('matures '+shortDateNoYear(h.maturity));
       if(h.sip)bits.push('SIP '+money(h.sip)+'/mo');
       if(h.note)bits.push(h.note);
-      return '<div class="item"><div class="emo" style="background:'+g.c+'22">'+typ.e+'</div><div class="info"><div class="c">'+esc(h.name)+'</div><div class="n">'+esc(bits.join(' · '))+'</div></div><div class="amt">'+money(cur)+'<small class="'+gainClass(gamt)+'">'+signedMoney(gamt)+' · '+fmtPct(p)+'</small></div><div class="acts"><button data-hedit="'+h.id+'" aria-label="Edit '+esc(h.name)+'">✏️</button><button data-hdel="'+h.id+'" aria-label="Delete '+esc(h.name)+'">🗑️</button></div></div>';
+      return '<div class="item"><div class="emo" style="background:'+g.c+'22">'+typ.e+'</div><div class="info"><div class="c">'+esc(h.name)+'</div><div class="n">'+esc(bits.join(' · '))+'</div></div><div class="amt">'+money(holdingAmount(h))+'</div><div class="acts"><button data-hedit="'+h.id+'" aria-label="Edit '+esc(h.name)+'">✏️</button><button data-hdel="'+h.id+'" aria-label="Delete '+esc(h.name)+'">🗑️</button></div></div>';
     }).join('')+'</div>';
   }).join('');
-}
-function formatUnits(n){
-  if(Math.abs(n-Math.round(n))<1e-9)return String(Math.round(n));
-  var s=String(Math.round(n*1e6)/1e6);
-  return s;
 }
 
 /* ---------- holding form ---------- */
@@ -1881,37 +1953,18 @@ function markHType(){
   updHFields();
 }
 function updHFields(){
-  var typ=TYPEMAP[selectedType]||TYPEMAP.other;
-  var showU=typeHasUnits(selectedType,editingHolding);
   var showT=typeHasTenure(selectedType,editingHolding);
-  $('hUnitsWrap').hidden=!showU;
   $('hRateWrap').hidden=!showT;
-  $('hUnitsLab').textContent='Units (optional)'+(typ&&typ.unit?' — '+typ.unit:'');
   var other=selectedType==='other';
   $('hCustomWrap').hidden=!other;
   if(other)$('hCustom').value=selectedCustom||'';
   else{$('hCustom').value='';}
-  if(showU)updHComputed();
-  else{$('hCur').readOnly=false;$('hComputed').textContent='';}
 }
 function parseOptNumber(s){
   s=String(s).replace(/[₹,\s]/g,'');
   if(s===''||s==='.')return null;
   if(!/^\d*\.?\d*$/.test(s))return NaN;
   return parseFloat(s);
-}
-function updHComputed(){
-  var units=parseOptNumber($('hUnits').value), price=parseOptNumber($('hPrice').value);
-  var box=$('hComputed'), cur=$('hCur');
-  if(units>0&&price>=0&&isFinite(units)&&isFinite(price)){
-    var v=Math.round(units*price*100)/100;
-    cur.value=String(v);
-    cur.readOnly=true;
-    box.textContent='Current value = '+formatUnits(units)+' × '+money(price)+' = '+money(v)+'. Clear units or price to type a value instead.';
-  }else{
-    cur.readOnly=false;
-    box.textContent='';
-  }
 }
 function openHolding(h){
   editingHolding=h||null;
@@ -1920,10 +1973,7 @@ function openHolding(h){
   $('hTitle').textContent=h?'Edit holding':'Add a holding';
   $('hSave').textContent=h?'Update':'Save';
   $('hName').value=h?h.name:'';
-  $('hInv').value=h?String(h.invested):'';
-  $('hCur').value=h?String(holdingCurrent(h)):'';
-  $('hUnits').value=h&&h.units?String(h.units):'';
-  $('hPrice').value=h&&h.price>=0&&h.units?String(h.price):'';
+  $('hAmount').value=h?formatAmountNumber(holdingAmount(h)):'';
   $('hRate').value=h&&h.rate?String(h.rate):'';
   $('hMat').value=h&&h.maturity?h.maturity:'';
   $('hNote').value=h&&h.note?h.note:'';
@@ -1931,12 +1981,11 @@ function openHolding(h){
   var sipOn=!!(h&&h.sip>0);
   $('hSip').checked=sipOn;
   $('hSipOpts').hidden=!sipOn;
-  $('hSipAmt').value=sipOn?String(h.sip):'';
+  $('hSipAmt').value=sipOn?formatAmountNumber(h.sip):'';
   $('hSipDay').value=String((h&&h.sipDay)||5);
   markHType();
-  updHComputed();
   open($('hsheet'));
-  setTimeout(function(){$('hInv').focus();},250);
+  setTimeout(function(){$('hAmount').focus();},250);
 }
 $('hType').addEventListener('change',function(){
   var p=parseTypeValue(this.value);
@@ -1945,23 +1994,16 @@ $('hType').addEventListener('change',function(){
   updHFields();
 });
 $('hSip').addEventListener('change',function(){$('hSipOpts').hidden=!$('hSip').checked;});
-['hUnits','hPrice'].forEach(function(id){
-  $(id).addEventListener('input',updHComputed);
-  $(id).addEventListener('change',updHComputed);
-});
 $('hCancel').onclick=close;
-function holdingAmountError(a,label){
-  if(a==null||!isFinite(a)||a<0)return 'Enter the '+label+'.';
+function holdingAmountError(a){
+  if(a==null||!isFinite(a)||!(a>0))return 'Enter an amount. Even ₹1 counts! 🙂';
   if(a>1000000000)return 'That’s over ₹100 crore. Please double-check. 🏠';
   return '';
 }
 $('hsheet').addEventListener('submit',function(e){
   e.preventDefault();
   var name=$('hName').value.trim();
-  var inv=parseOptNumber($('hInv').value);
-  var cur=parseOptNumber($('hCur').value);
-  var units=parseOptNumber($('hUnits').value);
-  var price=parseOptNumber($('hPrice').value);
+  var amt=parseAmount($('hAmount').value);
   if(!name){$('hErr').textContent='Give it a name.';$('hName').focus();return;}
   if(!TYPEMAP[selectedType]){$('hErr').textContent='Pick a type.';return;}
   var custom='';
@@ -1969,34 +2011,20 @@ $('hsheet').addEventListener('submit',function(e){
     custom=canonicalName(customTypes,$('hCustom').value);
     if(custom)customTypes=rememberName(customTypes,custom);
   }
-  if(inv==null)inv=0;
-  var err=holdingAmountError(inv,'amount invested');
-  var useUnits=typeHasUnits(selectedType,editingHolding);
-  if(useUnits){
-    if(!err&&(units!=null&&!isFinite(units)||units===0))err='Units should be a positive number, or left blank.';
-    if(!err&&price!=null&&!isFinite(price))err='Price / NAV should be a number, or left blank.';
-    if(units>0&&price>=0&&isFinite(units)&&isFinite(price))cur=Math.round(units*price*100)/100;
-  }else{units=null;price=null;}
-  if(cur==null)cur=inv;
-  if(!err)err=holdingAmountError(cur,'current value');
-  if(!err&&inv===0&&cur===0&&!(useUnits&&units>0))err='Enter the amount invested or the current value.';
+  var err=holdingAmountError(amt);
   if(!err&&$('hSip').checked){
     var sa=parseAmount($('hSipAmt').value);
     if(!(sa>0))err='Enter the monthly SIP amount, or turn the SIP switch off.';
   }
-  if(err){$('hErr').textContent=err;return;}
+  if(err){$('hErr').textContent=err;$('hAmount').focus();return;}
   var raw={
     id:editingHolding?editingHolding.id:uid(),
-    name:name,type:selectedType,invested:inv,current:cur,
+    name:name,type:selectedType,amount:amt,
     note:$('hNote').value.trim(),
     createdAt:editingHolding?editingHolding.createdAt:Date.now(),
     updatedAt:Date.now()
   };
   if(custom)raw.customType=custom;
-  if(typeHasUnits(selectedType,editingHolding)){
-    if(units>0)raw.units=units;
-    if(price!=null&&isFinite(price)&&price>=0&&units>0)raw.price=price;
-  }
   if(typeHasTenure(selectedType,editingHolding)){
     var rate=parseOptNumber($('hRate').value);
     if(rate>0)raw.rate=rate;
@@ -2026,7 +2054,7 @@ $('holdings').addEventListener('click',function(e){
   else if(b.dataset.hdel){
     var h=holdings.find(function(x){return x.id===b.dataset.hdel;});if(!h)return;
     var linked=rules.filter(function(r){return r.holdingId===h.id;});
-    var msg='Delete “'+h.name+'” ('+money(holdingCurrent(h))+')?';
+    var msg='Delete “'+h.name+'” ('+money(holdingAmount(h))+')?';
     if(linked.length)msg+='\n\nIts SIP rule will be removed too. That will not delete any expenses.';
     if(!confirm(msg))return;
     holdings=holdings.filter(function(x){return x.id!==h.id;});
@@ -2059,17 +2087,14 @@ function syncHoldingFromRule(r){
 
 $('exSavCsv').onclick=function(){
   if(!holdings.length){toast('No holdings to export yet 🙃');return;}
-  var rows=[['Name','Category','Type','Invested (INR)','Current value (INR)','Gain (INR)','Gain %','Units','Unit label','Price per unit (INR)','Interest rate %','Maturity','Monthly SIP (INR)','SIP day','Note']];
+  var rows=[['Name','Category','Type','Amount (INR)','Interest rate %','Maturity','Monthly SIP (INR)','SIP day','Note']];
   holdings.slice().sort(function(a,b){
     var ga=holdingType(a).cat,gb=holdingType(b).cat;
     return ga<gb?-1:ga>gb?1:a.name.localeCompare(b.name);
   }).forEach(function(h){
-    var typ=holdingType(h),g=GROUPMAP[typ.cat],cur=holdingCurrent(h),gain=cur-h.invested;
+    var typ=holdingType(h),g=GROUPMAP[typ.cat];
     rows.push([
-      h.name,g.name,typ.name,h.invested.toFixed(2),cur.toFixed(2),gain.toFixed(2),
-      pctGain(h.invested,cur).toFixed(2),
-      h.units?String(h.units):'',h.units?unitLabel(h):'',
-      hasUnitPrice(h)?String(h.price):'',
+      h.name,g.name,typ.name,holdingAmount(h).toFixed(2),
       h.rate?String(h.rate):'',
       csvDate(h.maturity||''),
       h.sip?h.sip.toFixed(2):'',
@@ -2106,6 +2131,10 @@ try{
 /* ---------- init ---------- */
 buildCats($('cats'));buildCats($('rCats'));buildFreq($('fFreq'));buildFreq($('rFreq'));
 buildHoldingTypes();buildSipDays();
+bindAmountInput($('fAmount'),$('fAmtChips'));
+bindAmountInput($('hAmount'),$('hAmtChips'));
+bindAmountInput($('rAmount'),null);
+bindAmountInput($('hSipAmt'),null);
 load();
 rebuildCatPickers();
 buildHoldingTypes();
