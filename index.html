@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en-IN" data-mg-site="Paisa Diary" data-mg-here="/paisa-diary/">
+<html lang="en-IN" data-mg-site="Paisa Diary" data-mg-here="/paisa-diary/" data-mg-local="Expenses|#,Recurring|#recurring,Savings|#savings">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Paisa Diary · Daily Expenses</title>
-<meta name="description" content="Track your daily expenses in ₹. Works offline, data stays on your phone.">
+<title>Paisa Diary · Expenses &amp; Savings</title>
+<meta name="description" content="Track daily expenses and savings in ₹. Works offline, data stays on your phone.">
 <meta name="theme-color" content="#0f9d74" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1a17" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
@@ -185,6 +185,42 @@ html[data-theme=dark] .tcount{color:#06231a}
 [hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* tabs: three sections */
+.tabs.tabs3{grid-template-columns:1fr 1fr 1fr}
+.tabs.tabs3 button{font-size:.84rem;padding:0 4px;gap:4px;position:relative}
+@media (max-width:430px){
+  .tabs.tabs3 button{font-size:.7rem}
+  .tabs.tabs3 .tcount{position:absolute;top:4px;right:3px;min-width:18px;height:16px;font-size:.65rem;padding:0 4px}
+}
+.gain{color:var(--brand-2)}
+.loss{color:var(--danger)}
+.hero .row + .row{margin-top:10px}
+.hero .note{margin-top:12px;font-size:.78rem;opacity:.88;line-height:1.35}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;margin:14px 0 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;height:36px;padding:0 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);font-weight:650;font-size:.82rem;color:var(--text);white-space:nowrap}
+.chips button[aria-checked="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-2)}
+.nw{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:20px}
+.nw .col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.nw .col .b{width:100%;border-radius:6px 6px 2px 2px;background:var(--brand-soft);min-height:4px}
+.nw .col.last .b{background:var(--brand)}
+.nw .col .l{font-size:.62rem;color:var(--muted);letter-spacing:-.02em}
+.nw-legend{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;margin-top:8px}
+.item .amt small{display:block;text-align:right;font-weight:650;font-size:.75rem}
+.callout{display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 16px}
+.callout .ue{font-size:1.4rem;line-height:1.2}
+.callout .ut{flex:1;min-width:0;font-size:.9rem}
+.callout .ut b{display:block;font-size:.95rem;margin-bottom:2px}
+.type-group{margin-top:12px}
+.type-group .lab{margin-bottom:6px}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.type{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:7px 4px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:.7rem;font-weight:650;text-align:center;line-height:1.2}
+.type .ce{font-size:1.2rem}
+.type[aria-checked="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.hold-note{color:var(--muted);font-size:.8rem;margin:0 0 8px}
+.computed{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--brand-soft);font-size:.82rem}
+.computed:empty{display:none}
 </style>
 <!--mg:head inline--><style id="mg-shared-css">
 /* mg-shared.css: shared design tokens, header bar and footer. Single source: manideepgrandhi.github.io/assets/ */
@@ -550,9 +586,10 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
     <div class="brand"><div class="logo">₹</div>Paisa Diary</div>
     <button class="icon-btn" id="menuBtn" aria-label="Menu: export, import, backup">⋯</button>
   </div>
-  <nav class="wrap" aria-label="Sections"><div class="tabs" role="tablist">
+  <nav class="wrap" aria-label="Sections"><div class="tabs tabs3" role="tablist">
     <button role="tab" id="tabExp" aria-selected="true" aria-controls="viewExp">💸 Expenses</button>
     <button role="tab" id="tabRec" aria-selected="false" aria-controls="viewRec">🔁 Recurring <span class="tcount" id="recCount"></span></button>
+    <button role="tab" id="tabSav" aria-selected="false" aria-controls="viewSav">💰 Savings</button>
   </div></nav>
 </header>
 
@@ -590,14 +627,59 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
     <div class="big" id="recMonthly">₹0/month</div>
     <div class="quip" id="recQuip"></div>
     <div class="row">
-      <div class="pill"><div class="lbl">Active</div><div class="val" id="recActive">0</div></div>
-      <div class="pill"><div class="lbl">Next 7 days</div><div class="val" id="recWeek">₹0</div></div>
+      <div class="pill"><div class="lbl">Expenses</div><div class="val" id="recExpTot">₹0</div></div>
+      <div class="pill"><div class="lbl">SIPs / investments</div><div class="val" id="recInvTot">₹0</div></div>
     </div>
   </section>
-  <section class="card" id="recUpcoming" style="margin-top:14px"></section>
+  <section class="card callout" id="recSplitNote" style="margin-top:14px"></section>
+  <section class="card" id="recUpcoming"></section>
   <div class="sectitle"><b>Your rules</b><span id="recRulesSub"></span></div>
   <section id="rules"></section>
-  <p class="hint">🔁 Payments are auto-logged when you open the app. I’m a webpage, not a fortune teller, so if you don’t open me for a week I’ll catch up next time.</p>
+  <p class="hint">🔁 Expense rules are auto-logged when you open the app. Investment / SIP rules are not — they only show on the Savings tab. I’m a webpage, not a fortune teller, so if you don’t open me for a week I’ll catch up next time.</p>
+</div>
+
+<div id="viewSav" hidden>
+  <section class="hero" aria-live="polite">
+    <div class="lbl">Net worth</div>
+    <div class="big" id="savNet">₹0</div>
+    <div class="quip" id="savQuip"></div>
+    <div class="row">
+      <div class="pill"><div class="lbl">Invested</div><div class="val" id="savInvested">₹0</div></div>
+      <div class="pill"><div class="lbl">Gain / loss</div><div class="val" id="savGain">₹0</div></div>
+    </div>
+    <div class="row">
+      <div class="pill"><div class="lbl">This month spent</div><div class="val" id="savSpent">₹0</div></div>
+      <div class="pill"><div class="lbl">This month SIPs</div><div class="val" id="savSips">₹0</div></div>
+    </div>
+    <div class="note">Current values are typed in by you, or units × price when you fill both. Nothing here logs into a fund house, broker or bank.</div>
+  </section>
+
+  <section class="card" id="bdSavCard" style="margin-top:14px">
+    <h2>Where it’s parked <span id="donutSub"></span></h2>
+    <div id="savBreakdown"></div>
+  </section>
+
+  <section class="card" id="nwCard">
+    <h2>Net worth, month by month <span>as you use the app</span></h2>
+    <div id="nwChart"></div>
+    <div class="nw-legend"><span id="nwMin"></span><span id="nwMax"></span></div>
+  </section>
+
+  <section class="card" id="sipCard">
+    <h2>Monthly SIPs &amp; deposits <span id="sipSub"></span></h2>
+    <p class="hold-note">These are recurring payments marked as investments, so they don’t inflate this month’s expenses.</p>
+    <div id="sipList"></div>
+  </section>
+
+  <section class="card" id="matCard">
+    <h2>Upcoming maturities <span id="matSub"></span></h2>
+    <div id="matList"></div>
+  </section>
+
+  <div class="chips" id="savChips" role="radiogroup" aria-label="Filter holdings by type"></div>
+  <div class="sectitle"><b>Your holdings</b><span id="holdSub"></span></div>
+  <section id="holdings"></section>
+  <p class="hint">Your data lives only on this device. Back it up now and then from the ⋯ menu. 📦</p>
 </div>
 </main>
 <div id="mg-foot-slot"></div>
@@ -642,7 +724,8 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   <div class="grab"></div>
   <h3 id="menuTitle">Backup & export</h3>
   <div class="menu-list">
-    <button id="exCsv"><span>📊</span>Export CSV (for Excel / Sheets)</button>
+    <button id="exCsv"><span>📊</span>Export expenses CSV (for Excel / Sheets)</button>
+    <button id="exSavCsv"><span>💰</span>Export savings CSV (for Excel / Sheets)</button>
     <button id="exJson"><span>💾</span>Download JSON backup</button>
     <button id="imJson"><span>📥</span>Import JSON backup</button>
     <button id="wipe" class="danger"><span>🧹</span>Delete all data</button>
@@ -659,12 +742,19 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
     <label for="rName">Name</label>
     <input id="rName" maxlength="60" placeholder="e.g. Rent, Netflix, Car EMI, SIP" autocomplete="off" enterkeyhint="next">
   </div>
+  <div class="field" style="margin-top:6px">
+    <span class="lab" id="rKindLab">This is</span>
+    <div class="seg" id="rKind" role="radiogroup" aria-labelledby="rKindLab" style="grid-template-columns:1fr 1fr">
+      <button type="button" role="radio" data-kind="expense" aria-checked="true">💸 Expense</button>
+      <button type="button" role="radio" data-kind="invest" aria-checked="false">💰 Investment / SIP</button>
+    </div>
+  </div>
   <div class="field">
     <label for="rAmount">Amount</label>
     <div class="amtwrap"><span class="r">₹</span><input id="rAmount" inputmode="decimal" autocomplete="off" placeholder="0" enterkeyhint="done"></div>
   </div>
   <div class="err" id="rErr"></div>
-  <div class="field" style="margin-top:6px">
+  <div class="field" id="rCatWrap" style="margin-top:6px">
     <span class="lab" id="rCatLab">Category</span>
     <div class="cats" id="rCats" role="radiogroup" aria-labelledby="rCatLab"></div>
   </div>
@@ -697,13 +787,86 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   <div class="stack" id="cBtns"></div>
 </div>
 
+
+<form class="sheet" id="hsheet" role="dialog" aria-modal="true" aria-labelledby="hTitle" novalidate>
+  <div class="grab"></div>
+  <h3 id="hTitle">Add a holding</h3>
+  <div class="field" style="margin-top:0">
+    <label for="hName">Name</label>
+    <input id="hName" maxlength="80" placeholder="e.g. SBI 3-year FD, Parag Parikh Flexi Cap" autocomplete="off" enterkeyhint="next">
+  </div>
+  <div class="field">
+    <span class="lab" id="hTypeLab">Type</span>
+    <div id="hTypeGroups"></div>
+  </div>
+  <div class="two">
+    <div class="field">
+      <label for="hInv">Amount invested</label>
+      <div class="amtwrap"><span class="r">₹</span><input id="hInv" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+    <div class="field">
+      <label for="hCur">Current value</label>
+      <div class="amtwrap"><span class="r">₹</span><input id="hCur" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+  </div>
+  <div class="computed" id="hComputed"></div>
+  <div class="err" id="hErr"></div>
+  <div class="two">
+    <div class="field">
+      <label for="hUnits" id="hUnitsLab">Units (optional)</label>
+      <input id="hUnits" inputmode="decimal" placeholder="e.g. 50 shares, 10.25 units" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="hPrice">Price / NAV per unit (optional)</label>
+      <div class="amtwrap"><span class="r">₹</span><input id="hPrice" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+  </div>
+  <p class="hint" style="text-align:left;margin-top:8px">If you fill both units and price, current value becomes units × price. Otherwise type the current value yourself.</p>
+  <div class="two">
+    <div class="field">
+      <label for="hRate">Interest rate (optional)</label>
+      <input id="hRate" inputmode="decimal" placeholder="e.g. 7.1" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="hMat">Matures (optional)</label>
+      <input id="hMat" type="date">
+    </div>
+  </div>
+  <p class="hint" style="text-align:left;margin-top:8px">Rate and maturity are handy for FD, RD, PPF, NSC, SGB and similar. Leave them blank for stocks and funds.</p>
+  <div class="field">
+    <label class="switchrow" for="hSip"><span>🔁 This is a monthly SIP or deposit<small>It will show on the Recurring tab as an investment, not an expense</small></span><input type="checkbox" id="hSip" class="switch"></label>
+    <div id="hSipOpts" hidden>
+      <div class="two" style="margin-top:10px">
+        <div class="field" style="margin-top:0">
+          <label for="hSipAmt">Monthly amount</label>
+          <div class="amtwrap"><span class="r">₹</span><input id="hSipAmt" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+        </div>
+        <div class="field" style="margin-top:0">
+          <label for="hSipDay">Day of month</label>
+          <select id="hSipDay"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <label for="hNote">Note (optional)</label>
+    <input id="hNote" maxlength="120" placeholder="e.g. Direct growth, 50 shares" autocomplete="off">
+  </div>
+  <div class="btns">
+    <button type="button" class="btn" id="hCancel">Cancel</button>
+    <button type="submit" class="btn primary" id="hSave">Save</button>
+  </div>
+</form>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
 (function(){
 'use strict';
 var KEY='paisa-diary-expenses-v1';          // unchanged: plain array of expenses (old format)
-var RKEY='paisa-diary-recurring-v1';        // new: {version:1, rules:[...]}
+var RKEY='paisa-diary-recurring-v1';        // {version:1, rules:[...]}
+var HKEY='paisa-diary-holdings-v1';         // {version:1, holdings:[]}
+var NKEY='paisa-diary-networth-v1';         // [{m:'YYYY-MM',v:number}]
 var CATS=[
   {id:'Food',e:'🍛',c:'#f59e0b'},
   {id:'Transport',e:'🛺',c:'#3b82f6'},
@@ -717,6 +880,49 @@ var CATS=[
 var CATMAP={};CATS.forEach(function(c){CATMAP[c.id]=c;});
 var FREQS=[{id:'daily',l:'Daily'},{id:'weekly',l:'Weekly'},{id:'monthly',l:'Monthly'},{id:'yearly',l:'Yearly'}];
 var PER_MONTH={daily:365/12,weekly:52/12,monthly:1,yearly:1/12};
+var KINDS=[{id:'expense',l:'💸 Expense'},{id:'invest',l:'💰 Investment / SIP'}];
+var GROUPS=[
+  {id:'market',name:'Market-linked',e:'📈',c:'#3b82f6'},
+  {id:'fixed',name:'Fixed income',e:'🏦',c:'#0d9488'},
+  {id:'govt',name:'Govt schemes',e:'🇮🇳',c:'#f59e0b'},
+  {id:'retire',name:'Retirement',e:'🎯',c:'#8b5cf6'},
+  {id:'metal',name:'Gold & metals',e:'🥇',c:'#ca8a04'},
+  {id:'property',name:'Property',e:'🏠',c:'#ef4444'},
+  {id:'cash',name:'Cash',e:'💳',c:'#22c55e'},
+  {id:'other',name:'Other',e:'📦',c:'#64748b'}
+];
+var GROUPMAP={};GROUPS.forEach(function(g){GROUPMAP[g.id]=g;});
+var TYPES=[
+  {id:'mf-sip',name:'Mutual Fund (SIP)',short:'MF SIP',cat:'market',e:'📈',unit:'units'},
+  {id:'mf-lumpsum',name:'Mutual Fund (lumpsum)',short:'MF lump',cat:'market',e:'📊',unit:'units'},
+  {id:'stocks',name:'Stocks',short:'Stocks',cat:'market',e:'🏦',unit:'shares'},
+  {id:'etf',name:'ETFs',short:'ETFs',cat:'market',e:'📉',unit:'units'},
+  {id:'fd',name:'Fixed Deposit',short:'FD',cat:'fixed',e:'🏦'},
+  {id:'rd',name:'Recurring Deposit',short:'RD',cat:'fixed',e:'📅'},
+  {id:'corp-fd',name:'Corporate FD',short:'Corp FD',cat:'fixed',e:'🏢'},
+  {id:'bonds',name:'Bonds / Debentures',short:'Bonds',cat:'fixed',e:'📜'},
+  {id:'ppf',name:'PPF',short:'PPF',cat:'govt',e:'🇮🇳'},
+  {id:'ssy',name:'Sukanya Samriddhi (SSY)',short:'SSY',cat:'govt',e:'👧'},
+  {id:'nsc',name:'NSC',short:'NSC',cat:'govt',e:'📄'},
+  {id:'kvp',name:'Kisan Vikas Patra',short:'KVP',cat:'govt',e:'🌾'},
+  {id:'po-mis',name:'Post Office MIS',short:'PO MIS',cat:'govt',e:'🏤'},
+  {id:'scss',name:'Senior Citizen Savings Scheme',short:'SCSS',cat:'govt',e:'🧓'},
+  {id:'po-td',name:'Post Office TD',short:'PO TD',cat:'govt',e:'📦'},
+  {id:'epf',name:'EPF',short:'EPF',cat:'retire',e:'👷'},
+  {id:'vpf',name:'VPF',short:'VPF',cat:'retire',e:'➕'},
+  {id:'nps',name:'NPS',short:'NPS',cat:'retire',e:'🎯',unit:'units'},
+  {id:'sgb',name:'Sovereign Gold Bonds',short:'SGB',cat:'metal',e:'🥇',unit:'grams'},
+  {id:'gold',name:'Physical / Digital Gold',short:'Gold',cat:'metal',e:'🏅',unit:'grams'},
+  {id:'silver',name:'Silver',short:'Silver',cat:'metal',e:'🥈',unit:'grams'},
+  {id:'realty',name:'Real Estate',short:'Real estate',cat:'property',e:'🏠'},
+  {id:'savings',name:'Savings Account',short:'Savings a/c',cat:'cash',e:'💳'},
+  {id:'emergency',name:'Emergency fund / Cash',short:'Emergency',cat:'cash',e:'🆘'},
+  {id:'crypto',name:'Crypto',short:'Crypto',cat:'other',e:'₿',unit:'units'},
+  {id:'insurance',name:'Insurance (ULIP / endowment)',short:'ULIP',cat:'other',e:'🛡️',unit:'units'},
+  {id:'chit',name:'Chit fund',short:'Chit',cat:'other',e:'🤝'},
+  {id:'other',name:'Other',short:'Other',cat:'other',e:'📦'}
+];
+var TYPEMAP={};TYPES.forEach(function(t){TYPEMAP[t.id]=t;});
 var $=function(id){return document.getElementById(id);};
 
 /* ---------- money & dates ---------- */
@@ -746,17 +952,27 @@ function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]
 function isYmd(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s);}
 
 /* ---------- storage ---------- */
-var data=[],rules=[];
+var data=[],rules=[],holdings=[],networth=[];
 function load(){
   try{var raw=localStorage.getItem(KEY);data=raw?JSON.parse(raw):[];if(!Array.isArray(data))data=[];}
   catch(e){data=[];}
   data=data.filter(valid).map(clean);
   try{var rr=localStorage.getItem(RKEY);var j=rr?JSON.parse(rr):null;var list=Array.isArray(j)?j:(j&&Array.isArray(j.rules)?j.rules:[]);rules=list.filter(validRule).map(cleanRule);}
   catch(e){rules=[];}
+  try{var hr=localStorage.getItem(HKEY);var hj=hr?JSON.parse(hr):null;var hlist=Array.isArray(hj)?hj:(hj&&Array.isArray(hj.holdings)?hj.holdings:[]);holdings=hlist.filter(validHolding).map(cleanHolding);}
+  catch(e){holdings=[];}
+  try{var nr=localStorage.getItem(NKEY);var nj=nr?JSON.parse(nr):null;networth=Array.isArray(nj)?nj.filter(validNw):[];}
+  catch(e){networth=[];}
+  migrateRuleKinds();
 }
 function save(){
-  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(RKEY,JSON.stringify({version:1,rules:rules}));}
-  catch(e){toast('Could not save. Storage might be full or blocked 😬');}
+  snapshotNetworth();
+  try{
+    localStorage.setItem(KEY,JSON.stringify(data));
+    localStorage.setItem(RKEY,JSON.stringify({version:1,rules:rules}));
+    localStorage.setItem(HKEY,JSON.stringify({version:1,holdings:holdings}));
+    localStorage.setItem(NKEY,JSON.stringify(networth));
+  }catch(e){toast('Could not save. Storage might be full or blocked 😬');}
 }
 function valid(x){return x&&typeof x==='object'&&isFinite(+x.amount)&&+x.amount>0&&isYmd(x.date);}
 function clean(x){
@@ -767,9 +983,68 @@ function clean(x){
 function validRule(r){return r&&typeof r==='object'&&isFinite(+r.amount)&&+r.amount>0&&PER_MONTH[r.freq]&&isYmd(r.start);}
 function cleanRule(r){
   var dom=Math.min(31,Math.max(1,parseInt(r.dom,10)||parseYmd(r.start).getDate()));
-  return {id:String(r.id||uid()),name:String(r.name||r.category||'Recurring').slice(0,60),amount:Math.round(+r.amount*100)/100,
+  var kind=r.kind==='invest'?'invest':'expense';
+  var o={id:String(r.id||uid()),name:String(r.name||r.category||'Recurring').slice(0,60),amount:Math.round(+r.amount*100)/100,
     category:CATMAP[r.category]?r.category:'Other',freq:r.freq,dom:dom,start:r.start,end:isYmd(r.end)?r.end:'',
-    paused:!!r.paused,lastGen:isYmd(r.lastGen)?r.lastGen:'',createdAt:+r.createdAt||Date.now()};
+    kind:kind,paused:!!r.paused,lastGen:isYmd(r.lastGen)?r.lastGen:'',createdAt:+r.createdAt||Date.now()};
+  if(r.holdingId)o.holdingId=String(r.holdingId);
+  return o;
+}
+function isInvest(r){return r&&r.kind==='invest';}
+function migrateRuleKinds(){
+  // Existing stored rules have no kind. cleanRule already fills 'expense' in memory;
+  // persist once so the file on disk matches, and old data stays expense.
+  try{
+    var rr=localStorage.getItem(RKEY);
+    var j=rr?JSON.parse(rr):null;
+    var list=Array.isArray(j)?j:(j&&Array.isArray(j.rules)?j.rules:[]);
+    var needs=list.some(function(r){return r&&r.kind!=='expense'&&r.kind!=='invest';});
+    if(needs){localStorage.setItem(RKEY,JSON.stringify({version:1,rules:rules}));}
+  }catch(e){}
+}
+function validHolding(h){
+  return h&&typeof h==='object'&&String(h.name||'').trim()&&TYPEMAP[h.type]&&isFinite(+h.invested)&&+h.invested>=0;
+}
+function cleanHolding(h){
+  var o={id:String(h.id||uid()),name:String(h.name||'').trim().slice(0,80),type:TYPEMAP[h.type]?h.type:'other',
+    invested:Math.round((+h.invested||0)*100)/100,current:Math.round((+h.current||0)*100)/100,
+    note:String(h.note||'').slice(0,120),createdAt:+h.createdAt||Date.now(),updatedAt:+h.updatedAt||Date.now()};
+  if(isFinite(+h.units)&&+h.units>0)o.units=+h.units;
+  if(isFinite(+h.price)&&+h.price>=0)o.price=Math.round(+h.price*10000)/10000;
+  if(isFinite(+h.rate)&&+h.rate>0)o.rate=+h.rate;
+  if(isYmd(h.maturity))o.maturity=h.maturity;
+  if(isYmd(h.started))o.started=h.started;
+  if(isFinite(+h.sip)&&+h.sip>0){o.sip=Math.round(+h.sip*100)/100;o.sipDay=Math.min(31,Math.max(1,parseInt(h.sipDay,10)||1));}
+  o.current=holdingCurrent(o);
+  return o;
+}
+function holdingCurrent(h){
+  if(h.units>0&&h.price>=0&&isFinite(h.units)&&isFinite(h.price))return Math.round(h.units*h.price*100)/100;
+  return Math.round((+h.current||0)*100)/100;
+}
+function hasUnitPrice(h){return h.units>0&&h.price>=0&&isFinite(h.units)&&isFinite(h.price);}
+function validNw(x){return x&&typeof x.m==='string'&&/^\d{4}-\d{2}$/.test(x.m)&&isFinite(+x.v)&&+x.v>=0;}
+function totalInvested(){return holdings.reduce(function(a,h){return a+h.invested;},0);}
+function totalCurrent(){return holdings.reduce(function(a,h){return a+holdingCurrent(h);},0);}
+function snapshotNetworth(){
+  var mk=monthKey(today()),v=Math.round(totalCurrent()*100)/100;
+  var i=-1;networth.forEach(function(x,idx){if(x.m===mk)i=idx;});
+  if(i>=0)networth[i]={m:mk,v:v};else networth.push({m:mk,v:v});
+  networth=networth.filter(validNw).sort(function(a,b){return a.m<b.m?-1:1;});
+  if(networth.length>60)networth=networth.slice(-60);
+}
+function sipMonthlyTotal(){
+  var seen={},tot=0;
+  holdings.forEach(function(h){
+    var r=rules.find(function(x){return x.holdingId===h.id&&isInvest(x);});
+    if(r&&(r.paused||isEnded(r)))return;
+    if(h.sip>0){tot+=h.sip;if(r)seen[r.id]=1;}
+  });
+  rules.forEach(function(r){
+    if(!isInvest(r)||r.paused||isEnded(r)||seen[r.id])return;
+    tot+=r.amount*(PER_MONTH[r.freq]||0);
+  });
+  return tot;
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 
@@ -809,7 +1084,7 @@ function runRecurring(){
   var t=today(),added=0,changed=false,seen={},now=Date.now();
   data.forEach(function(x){if(x.ruleId)seen[x.ruleId+'|'+x.occ]=1;});
   rules.forEach(function(r){
-    if(r.paused)return;
+    if(r.paused||isInvest(r))return;
     occurrences(r,r.lastGen,t).forEach(function(d){
       if(!seen[r.id+'|'+d]){
         data.push({id:uid(),amount:r.amount,category:r.category,note:r.name,date:d,createdAt:now+added,ruleId:r.id,occ:d});
@@ -824,13 +1099,14 @@ function runRecurring(){
 function upcoming(days){
   var t=today(),to=addDays(t,days),list=[];
   rules.forEach(function(r){
-    if(r.paused)return;
+    if(r.paused||isInvest(r))return;
     var after=r.lastGen&&r.lastGen>t?r.lastGen:t;
     occurrences(r,after,to,40).forEach(function(d){list.push({r:r,d:d});});
   });
   return list.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:b.r.amount-a.r.amount;});
 }
-function monthlyEquivalent(){return rules.reduce(function(a,r){return a+((r.paused||isEnded(r))?0:r.amount*PER_MONTH[r.freq]);},0);}
+function monthlyEquivalent(kind){return rules.reduce(function(a,r){if(r.paused||isEnded(r))return a;if(kind&&r.kind!==kind)return a;return a+r.amount*PER_MONTH[r.freq];},0);}
+function nextDueInvest(r){return occurrences(r,addDays(today(),-1),'9999-12-31',1)[0]||'';}
 function schedText(freq,dom,start){
   var s=parseYmd(start);
   if(freq==='daily')return 'Every day';
@@ -843,7 +1119,8 @@ function schedText(freq,dom,start){
 var viewMonth=monthKey(today());
 var tab='exp';
 var editingId=null, selCat='Food', fFreq='monthly';
-var editingRule=null, rCat='Bills', rFreq='monthly';
+var editingRule=null, rCat='Bills', rFreq='monthly', rKind='expense';
+var editingHolding=null, selectedType='mf-sip', filterCat='all';
 
 /* ---------- render ---------- */
 function sum(list){return list.reduce(function(a,b){return a+b.amount;},0);}
@@ -872,6 +1149,7 @@ function render(){
   renderDays(month);
   renderUpnext();
   renderRecurring();
+  renderSav();
 }
 function renderBreakdown(month,mt){
   var el=$('breakdown');
@@ -918,12 +1196,12 @@ function renderUpnext(){
   var el=$('upnext'),up=upcoming(7);
   if(!rules.length){
     el.hidden=false;
-    el.innerHTML='<div class="ue">🔁</div><div class="ut"><b>Rent, Netflix, EMIs, SIPs?</b><span class="muted">Set them up once and I’ll log them for you.</span></div><button class="linkbtn" data-goto-rec>Set up</button>';
+    el.innerHTML='<div class="ue">🔁</div><div class="ut"><b>Rent, Netflix, EMIs?</b><span class="muted">Set them up once and I’ll log them for you. SIPs go under Savings, as investments.</span></div><button class="linkbtn" data-goto-rec>Set up</button>';
     return;
   }
   el.hidden=false;
   if(!up.length){
-    el.innerHTML='<div class="ue">😌</div><div class="ut"><b>Nothing recurring in the next 7 days</b><span class="muted">'+money(monthlyEquivalent())+'/month in recurring</span></div><button class="linkbtn" data-goto-rec>Manage</button>';
+    el.innerHTML='<div class="ue">😌</div><div class="ut"><b>No expenses recurring in the next 7 days</b><span class="muted">'+money(monthlyEquivalent('expense'))+'/month in expense rules</span></div><button class="linkbtn" data-goto-rec>Manage</button>';
     return;
   }
   var tot=sum(up.map(function(u){return {amount:u.r.amount};}));
@@ -931,28 +1209,53 @@ function renderUpnext(){
   el.innerHTML='<div class="ue">🔔</div><div class="ut"><b>Upcoming in 7 days: '+money(tot)+'</b>'+names+'</div><button class="linkbtn" data-goto-rec>Manage</button>';
 }
 function renderRecurring(){
+  var exp=rules.filter(function(r){return !isInvest(r)&&!r.paused&&!isEnded(r);});
+  var inv=rules.filter(function(r){return isInvest(r)&&!r.paused&&!isEnded(r);});
   var active=rules.filter(function(r){return !r.paused&&!isEnded(r);});
-  var meq=monthlyEquivalent(),up=upcoming(7);
+  var expTot=monthlyEquivalent('expense'), invTot=monthlyEquivalent('invest');
+  var up=upcoming(7);
   $('recCount').textContent=active.length?String(active.length):'';
-  $('recMonthly').textContent=money(Math.round(meq))+'/month';
-  $('recQuip').textContent=!rules.length?'No subscriptions. A rare and noble creature. 🦄':meq<1000?'Light commitments. Very zen. 🍃':meq<20000?'Your future self has some standing appointments. 📅':'Big monthly commitments. The wallet salutes you. 🫡';
-  $('recActive').textContent=active.length+(rules.length>active.length?' · '+(rules.length-active.length)+' off':'');
-  $('recWeek').textContent=money(sum(up.map(function(u){return {amount:u.r.amount};})));
+  $('recMonthly').textContent=money(Math.round(expTot))+'/month';
+  $('recQuip').textContent=!rules.length?'No subscriptions. A rare and noble creature. 🦄':
+    (invTot?'That’s only the expenses. '+money(Math.round(invTot))+' more goes to SIPs and deposits each month.':
+      (expTot<1000?'Light commitments. Very zen. 🍃':expTot<20000?'Your future self has some standing appointments. 📅':'Big monthly commitments. The wallet salutes you. 🫡'));
+  $('recExpTot').textContent=money(Math.round(expTot));
+  $('recInvTot').textContent=money(Math.round(invTot));
+  var note=$('recSplitNote');
+  if(invTot){
+    note.hidden=false;
+    note.innerHTML='<div class="ue">💡</div><div class="ut"><b>SIPs are not expenses</b><span class="muted">The '+money(Math.round(invTot))+' in SIPs and deposits is counted on the Savings tab, not as money spent.</span></div><button class="linkbtn" type="button" data-goto-sav>Savings</button>';
+  }else{
+    note.hidden=false;
+    note.innerHTML='<div class="ue">💡</div><div class="ut"><b>SIPs can live here too</b><span class="muted">Mark a rule as Investment / SIP and it won’t be added to expenses. It’ll show on the Savings tab instead.</span></div><button class="linkbtn" type="button" data-goto-sav>Savings</button>';
+  }
   var ue=$('recUpcoming');
-  ue.innerHTML='<h2>Upcoming in the next 7 days <span>'+(up.length?up.length+' due':'')+'</span></h2>'+(up.length?'<div class="uplist">'+up.map(function(u){var c=CATMAP[u.r.category];return '<div class="uprow"><span class="w">'+relDay(u.d)+'</span><span class="nm">'+c.e+' '+esc(u.r.name)+'</span><span class="a">'+money(u.r.amount)+'</span></div>';}).join('')+'</div>':'<div style="color:var(--muted);font-size:.92rem">Nothing due. Enjoy the calm before the EMI. 🌤️</div>');
+  ue.innerHTML='<h2>Upcoming expenses, next 7 days <span>'+(up.length?up.length+' due':'')+'</span></h2>'+(up.length?'<div class="uplist">'+up.map(function(u){var c=CATMAP[u.r.category];return '<div class="uprow"><span class="w">'+relDay(u.d)+'</span><span class="nm">'+c.e+' '+esc(u.r.name)+'</span><span class="a">'+money(u.r.amount)+'</span></div>';}).join('')+'</div>':'<div style="color:var(--muted);font-size:.92rem">Nothing due. Enjoy the calm before the EMI. 🌤️</div>');
   $('recRulesSub').textContent=rules.length?rules.length+' rule'+(rules.length>1?'s':''):'';
   var el=$('rules');
   if(!rules.length){
     el.innerHTML='<div class="card empty"><div class="e">🍿</div><b>No recurring payments yet</b>Either you own everything outright, or there’s a Netflix subscription hiding somewhere. Tap <b style="display:inline;margin:0">+ Add recurring</b>.</div>';
     return;
   }
-  var sorted=rules.slice().sort(function(a,b){var na=a.paused?'z':nextDue(a)||'y',nb=b.paused?'z':nextDue(b)||'y';return na<nb?-1:na>nb?1:a.name.localeCompare(b.name);});
+  var sorted=rules.slice().sort(function(a,b){
+    if(isInvest(a)!==isInvest(b))return isInvest(a)?1:-1;
+    var na=a.paused?'z':(isInvest(a)?nextDueInvest(a):nextDue(a))||'y';
+    var nb=b.paused?'z':(isInvest(b)?nextDueInvest(b):nextDue(b))||'y';
+    return na<nb?-1:na>nb?1:a.name.localeCompare(b.name);
+  });
   el.innerHTML='<div class="list">'+sorted.map(function(r){
-    var c=CATMAP[r.category],ended=isEnded(r),nd=nextDue(r);
-    var status=r.paused?'<span class="tag">Paused</span>':ended?'<span class="tag">Ended</span>':'<span class="tag ok">Active</span>';
+    var invest=isInvest(r), ended=isEnded(r), nd=invest?nextDueInvest(r):nextDue(r);
+    var typ=null;
+    if(invest&&r.holdingId){
+      var h=holdings.find(function(x){return x.id===r.holdingId;});
+      typ=h?TYPEMAP[h.type]:null;
+    }
+    var c=invest?(typ?{e:typ.e,c:GROUPMAP[typ.cat].c}:{e:'💰',c:'#0d9488'}):CATMAP[r.category];
+    var kindTag=invest?'<span class="tag ok">Investment</span>':'<span class="tag ok">Expense</span>';
+    var status=r.paused?'<span class="tag">Paused</span>':ended?'<span class="tag">Ended</span>':kindTag;
     var line=schedText(r.freq,r.dom,r.start)+(r.end?' · until '+shortDate(r.end):'');
-    var line2=r.paused?'Paused. Nothing will be logged.':ended?'All done. No more payments. 🎉':nd?'Next: '+relDay(nd):'';
-    var logged=data.filter(function(x){return x.ruleId===r.id;}).length;
+    var line2=r.paused?(invest?'Paused. It won’t show as an active SIP.':'Paused. Nothing will be logged.'):ended?'All done. No more payments. 🎉':nd?'Next: '+relDay(nd):'';
+    var logged=invest?0:data.filter(function(x){return x.ruleId===r.id;}).length;
     return '<div class="item rule'+(r.paused?' paused':'')+'" data-rule="'+r.id+'"><div class="emo" style="background:'+c.c+'22">'+c.e+'</div><div class="info"><div class="c">'+esc(r.name)+status+'</div><div class="n">'+line+'</div><div class="n">'+line2+(logged?' · '+logged+' logged':'')+'</div></div><div class="amt">'+money(r.amount)+'<small>'+(r.freq==='monthly'?'/month':r.freq==='weekly'?'/week':r.freq==='daily'?'/day':'/year')+'</small></div>'+
       '<div class="racts"><button data-rpause="'+r.id+'">'+(r.paused?'▶️ Resume':'⏸️ Pause')+'</button><button data-redit="'+r.id+'">✏️ Edit</button><button class="del" data-rdel="'+r.id+'">🗑️ Delete</button></div></div>';
   }).join('')+'</div>';
@@ -961,15 +1264,18 @@ function renderRecurring(){
 /* ---------- tabs ---------- */
 function setTab(t){
   tab=t;
-  $('viewExp').hidden=t!=='exp';$('viewRec').hidden=t!=='rec';
-  $('tabExp').setAttribute('aria-selected',t==='exp');$('tabRec').setAttribute('aria-selected',t==='rec');
-  $('fabLbl').textContent=t==='exp'?'Add expense':'Add recurring';
-  try{history.replaceState(null,'',t==='rec'?'#recurring':location.pathname+location.search);}catch(e){}
+  $('viewExp').hidden=t!=='exp';$('viewRec').hidden=t!=='rec';$('viewSav').hidden=t!=='sav';
+  $('tabExp').setAttribute('aria-selected',t==='exp');$('tabRec').setAttribute('aria-selected',t==='rec');$('tabSav').setAttribute('aria-selected',t==='sav');
+  $('fabLbl').textContent=t==='sav'?'Add holding':t==='rec'?'Add recurring':'Add expense';
+  var hash=t==='rec'?'#recurring':t==='sav'?'#savings':location.pathname+location.search;
+  try{history.replaceState(null,'',hash);}catch(e){}
   window.scrollTo(0,0);
 }
 $('tabExp').onclick=function(){setTab('exp');};
 $('tabRec').onclick=function(){setTab('rec');};
+$('tabSav').onclick=function(){setTab('sav');};
 $('upnext').addEventListener('click',function(e){if(e.target.closest('[data-goto-rec]'))setTab('rec');});
+document.addEventListener('click',function(e){if(e.target.closest('[data-goto-sav]'))setTab('sav');});
 
 /* ---------- sheets ---------- */
 function buildCats(el){
@@ -1031,7 +1337,7 @@ $('cats').addEventListener('click',function(e){var b=e.target.closest('.cat');if
 $('cancelBtn').onclick=close;
 $('scrim').onclick=close;
 document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
-$('addBtn').onclick=function(){if(tab==='rec')openRule(null);else openForm(null);};
+$('addBtn').onclick=function(){if(tab==='rec')openRule(null);else if(tab==='sav')openHolding(null);else openForm(null);};
 $('days').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   if(b.dataset.edit){openForm(data.find(function(x){return x.id===b.dataset.edit;}));}
@@ -1057,15 +1363,28 @@ function choose(title,msg,opts,cb){
 
 /* ---------- rule form ---------- */
 (function(){var o='';for(var i=1;i<=31;i++)o+='<option value="'+i+'">'+ord(i)+(i>28?' (or last day)':'')+'</option>';$('rDom').innerHTML=o;})();
+function setRKind(k){
+  rKind=k==='invest'?'invest':'expense';
+  markRadio($('rKind'),'kind',rKind);
+  $('rCatWrap').hidden=rKind==='invest';
+  updRHint();
+}
 function updRHint(){
   markRadio($('rFreq'),'freq',rFreq);
+  markRadio($('rKind'),'kind',rKind);
   $('rDomWrap').hidden=rFreq!=='monthly';
+  $('rCatWrap').hidden=rKind==='invest';
   var st=$('rStart').value||today(),dom=+$('rDom').value||parseYmd(st).getDate();
-  var tmp={freq:rFreq,dom:dom,start:st,end:$('rEnd').value||'',lastGen:editingRule?editingRule.lastGen:''};
+  var tmp={freq:rFreq,dom:dom,start:st,end:$('rEnd').value||'',lastGen:editingRule?editingRule.lastGen:'',kind:rKind};
   var nx=occurrences(tmp,tmp.lastGen&&tmp.lastGen>addDays(today(),-1)?tmp.lastGen:addDays(today(),-1),'9999-12-31',1)[0];
-  var back=!editingRule?occurrences(tmp,'',today()).length:0;
-  $('rHint').textContent='🔁 '+schedText(rFreq,dom,st)+'. '+(back?'I’ll log '+back+' past payment'+(back>1?'s':'')+' from '+shortDate(st)+' up to today. ':'')+(nx?'Next: '+relDay(nx)+'.':'No upcoming dates.')+(editingRule?' Changes apply to future entries only.':'');
-  $('rActiveSub').textContent=$('rActive').checked?'Auto-log when due':'Paused. Nothing gets logged.';
+  var back=(!editingRule&&rKind!=='invest')?occurrences(tmp,'',today()).length:0;
+  if(rKind==='invest'){
+    $('rHint').textContent='💰 '+schedText(rFreq,dom,st)+'. This is an investment, so it won’t be logged as an expense. It’ll show on the Savings tab.'+(nx?' Next: '+relDay(nx)+'.':'');
+    $('rActiveSub').textContent=$('rActive').checked?'Active SIP / deposit':'Paused. Hidden from the monthly SIP total.';
+  }else{
+    $('rHint').textContent='🔁 '+schedText(rFreq,dom,st)+'. '+(back?'I’ll log '+back+' past payment'+(back>1?'s':'')+' from '+shortDate(st)+' up to today. ':'')+(nx?'Next: '+relDay(nx)+'.':'No upcoming dates.')+(editingRule?' Changes apply to future entries only.':'');
+    $('rActiveSub').textContent=$('rActive').checked?'Auto-log when due':'Paused. Nothing gets logged.';
+  }
 }
 function openRule(r){
   editingRule=r||null;
@@ -1076,15 +1395,16 @@ function openRule(r){
   $('rStart').value=r?r.start:today();
   $('rEnd').value=r?r.end:'';
   $('rErr').textContent='';
-  rFreq=r?r.freq:'monthly';rCat=r?r.category:'Bills';
+  rFreq=r?r.freq:'monthly';rCat=r?r.category:'Bills';rKind=r&&r.kind==='invest'?'invest':'expense';
   $('rDom').value=String(r?r.dom:parseYmd(today()).getDate());
   $('rActive').checked=r?!r.paused:true;
   markRadio($('rCats'),'cat',rCat);
-  updRHint();
+  setRKind(rKind);
   open($('rsheet'));
   if(!r)setTimeout(function(){$('rName').focus();},250);
 }
 $('rCats').addEventListener('click',function(e){var b=e.target.closest('.cat');if(b){rCat=b.dataset.cat;markRadio($('rCats'),'cat',rCat);if(!$('rName').value.trim())$('rName').placeholder=b.dataset.cat==='Bills'?'e.g. Rent, Electricity, Wi-Fi':b.dataset.cat==='Entertainment'?'e.g. Netflix, Spotify':'e.g. '+b.dataset.cat;}});
+$('rKind').addEventListener('click',function(e){var b=e.target.closest('[data-kind]');if(b)setRKind(b.dataset.kind);});
 $('rFreq').addEventListener('click',function(e){var b=e.target.closest('[data-freq]');if(b){rFreq=b.dataset.freq;updRHint();}});
 $('rStart').addEventListener('change',function(){if(this.value&&!editingRule)$('rDom').value=String(parseYmd(this.value).getDate());updRHint();});
 ['rDom','rEnd','rActive'].forEach(function(id){$(id).addEventListener('change',updRHint);});
@@ -1106,15 +1426,24 @@ $('rsheet').addEventListener('submit',function(e){
   var n=0;
   if(editingRule){
     var r=editingRule;
-    r.name=name;r.amount=a;r.category=rCat;r.freq=rFreq;r.dom=dom;r.start=st;r.end=en;
+    r.name=name;r.amount=a;r.category=rKind==='invest'?(r.category||'Other'):rCat;r.freq=rFreq;r.dom=dom;r.start=st;r.end=en;
     setPaused(r,!$('rActive').checked);
+    if(rKind==='expense'&&r.holdingId){
+      var linked=holdings.find(function(x){return x.id===r.holdingId;});
+      if(linked){delete linked.sip;delete linked.sipDay;linked.updatedAt=Date.now();}
+      delete r.holdingId;
+      r.kind='expense';
+    }else{
+      r.kind=rKind;
+      syncHoldingFromRule(r);
+    }
     n=runRecurring();save();toast('Rule updated ✏️'+(n?' · '+n+' logged':''));
   }else{
-    var nr=cleanRule({id:uid(),name:name,amount:a,category:rCat,freq:rFreq,dom:dom,start:st,end:en,paused:!$('rActive').checked,lastGen:'',createdAt:Date.now()});
+    var nr=cleanRule({id:uid(),name:name,amount:a,category:rKind==='invest'?'Other':rCat,freq:rFreq,dom:dom,start:st,end:en,kind:rKind,paused:!$('rActive').checked,lastGen:'',createdAt:Date.now()});
     if(nr.paused)nr.lastGen=addDays(today(),-1);
     rules.push(nr);
     n=runRecurring();save();
-    toast(n?'Saved 🔁 Logged '+n+' payment'+(n>1?'s':'')+' so far':'Saved 🔁 I’ll log it when it’s due');
+    toast(rKind==='invest'?'Saved 💰 It’ll show on the Savings tab, not as an expense':(n?'Saved 🔁 Logged '+n+' payment'+(n>1?'s':'')+' so far':'Saved 🔁 I’ll log it when it’s due'));
   }
   editingRule=null;close();render();
 });
@@ -1134,6 +1463,10 @@ $('rules').addEventListener('click',function(e){
       if(!v)return;
       rules=rules.filter(function(x){return x.id!==r.id;});
       if(v==='all')data=data.filter(function(x){return x.ruleId!==r.id;});
+      if(r.holdingId){
+        var h=holdings.find(function(x){return x.id===r.holdingId;});
+        if(h){delete h.sip;delete h.sipDay;h.updatedAt=Date.now();}
+      }
       save();render();toast(v==='all'?'Rule and entries deleted 🧹':'Rule deleted. Entries kept 👍');
     });
   }
@@ -1156,7 +1489,7 @@ $('exCsv').onclick=function(){
   toast('CSV exported 📊');
 };
 $('exJson').onclick=function(){
-  download('paisa-diary-backup-'+today()+'.json',JSON.stringify({app:'paisa-diary',version:2,exportedAt:new Date().toISOString(),expenses:data,recurring:rules},null,2),'application/json');
+  download('paisa-diary-backup-'+today()+'.json',JSON.stringify({app:'paisa-diary',version:3,exportedAt:new Date().toISOString(),expenses:data,recurring:rules,holdings:holdings,networth:networth},null,2),'application/json');
   toast('Backup saved 💾');
 };
 $('imJson').onclick=function(){$('fileIn').click();};
@@ -1168,24 +1501,391 @@ $('fileIn').onchange=function(){
       var j=JSON.parse(r.result);var list=Array.isArray(j)?j:j.expenses;
       if(!Array.isArray(list))throw 0;
       var rlist=(!Array.isArray(j)&&Array.isArray(j.recurring))?j.recurring:[];   // old (v1) backups have no rules
-      var good=list.filter(valid).map(clean),goodR=rlist.filter(validRule).map(cleanRule);
-      if(!good.length&&!goodR.length){toast('No valid expenses in that file 🤔');return;}
+      var hlist=(!Array.isArray(j)&&Array.isArray(j.holdings))?j.holdings:[];     // v1/v2 backups have no holdings
+      var nlist=(!Array.isArray(j)&&Array.isArray(j.networth))?j.networth:[];
+      var good=list.filter(valid).map(clean),goodR=rlist.filter(validRule).map(cleanRule),goodH=hlist.filter(validHolding).map(cleanHolding);
+      if(!good.length&&!goodR.length&&!goodH.length){toast('No valid expenses or holdings in that file 🤔');return;}
       var ids={};data.forEach(function(x){ids[x.id]=1;});
       var rids={};rules.forEach(function(x){rids[x.id]=1;});
-      var fresh=good.filter(function(x){return !ids[x.id];}),freshR=goodR.filter(function(x){return !rids[x.id];});
-      var msg='Import '+fresh.length+' new expense'+(fresh.length===1?'':'s')+(goodR.length?' and '+freshR.length+' recurring rule'+(freshR.length===1?'':'s'):'')+'? ('+(good.length-fresh.length+goodR.length-freshR.length)+' already here will be skipped)';
+      var hids={};holdings.forEach(function(x){hids[x.id]=1;});
+      var fresh=good.filter(function(x){return !ids[x.id];}),freshR=goodR.filter(function(x){return !rids[x.id];}),freshH=goodH.filter(function(x){return !hids[x.id];});
+      var skipped=(good.length-fresh.length)+(goodR.length-freshR.length)+(goodH.length-freshH.length);
+      var bits=[];
+      bits.push(fresh.length+' new expense'+(fresh.length===1?'':'s'));
+      if(goodR.length||freshR.length)bits.push(freshR.length+' recurring rule'+(freshR.length===1?'':'s'));
+      if(goodH.length||freshH.length)bits.push(freshH.length+' holding'+(freshH.length===1?'':'s'));
+      var msg='Import '+bits.join(' and ')+'? ('+skipped+' already here will be skipped)';
       if(!confirm(msg))return;
-      data=data.concat(fresh);rules=rules.concat(freshR);
-      var n=runRecurring();save();close();render();toast('Imported '+fresh.length+(freshR.length?' + '+freshR.length+' 🔁':'')+' 📥'+(n?' · '+n+' caught up':''));
+      data=data.concat(fresh);rules=rules.concat(freshR);holdings=holdings.concat(freshH);
+      nlist.filter(validNw).forEach(function(s){
+        if(!networth.some(function(x){return x.m===s.m;}))networth.push(s);
+      });
+      var n=runRecurring();save();close();render();
+      toast('Imported '+fresh.length+(freshR.length?' + '+freshR.length+' 🔁':'')+(freshH.length?' + '+freshH.length+' 💰':'')+' 📥'+(n?' · '+n+' caught up':''));
     }catch(e){toast('That doesn’t look like a Paisa Diary backup 😕');}
   };
   r.readAsText(f);
 };
 $('wipe').onclick=function(){
-  if(!data.length&&!rules.length){toast('Already squeaky clean ✨');return;}
-  if(confirm('Delete ALL '+data.length+' expenses and '+rules.length+' recurring rule'+(rules.length===1?'':'s')+' from this device? This can’t be undone. (Maybe download a backup first?)')){
-    data=[];rules=[];save();close();render();toast('All clear. Fresh start! 🌱');
+  if(!data.length&&!rules.length&&!holdings.length){toast('Already squeaky clean ✨');return;}
+  if(confirm('Delete ALL '+data.length+' expenses, '+rules.length+' recurring rule'+(rules.length===1?'':'s')+' and '+holdings.length+' holding'+(holdings.length===1?'':'s')+' from this device? This can’t be undone. (Maybe download a backup first?)')){
+    data=[];rules=[];holdings=[];networth=[];save();close();render();toast('All clear. Fresh start! 🌱');
   }
+};
+
+/* ---------- savings ---------- */
+function signedMoney(n){n=Math.round(n*100)/100;if(n>0)return '+'+money(n);if(n<0)return '-'+money(Math.abs(n));return money(0);}
+function fmtPct(p){var a=Math.abs(p);var s=(a>=10?a.toFixed(1):a.toFixed(2))+'%';return (p>0?'+':'')+(p<0?'-':'')+s;}
+function pctGain(inv,cur){if(!inv)return cur?100:0;return (cur-inv)/inv*100;}
+function gainClass(n){return n>0?'gain':n<0?'loss':'';}
+function unitLabel(h){var t=TYPEMAP[h.type];return (t&&t.unit)?t.unit:'units';}
+function shortDateNoYear(s){return parseYmd(s).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+function csvDate(s){return s?'="'+s+'"':'';} // Excel-safe: stays text, not a date serial
+
+function renderSav(){
+  var inv=totalInvested(), cur=totalCurrent(), g=cur-inv, p=pctGain(inv,cur);
+  var spent=sum(data.filter(function(x){return monthKey(x.date)===monthKey(today());}));
+  var sips=sipMonthlyTotal();
+  $('savNet').textContent=money(cur);
+  $('savInvested').textContent=money(inv);
+  $('savGain').textContent=holdings.length?signedMoney(g)+' ('+fmtPct(p)+')':money(0);
+  $('savSpent').textContent=money(spent);
+  $('savSips').textContent=money(Math.round(sips));
+  if(!holdings.length)$('savQuip').textContent='Nothing parked yet. Add a holding to start the pot. 🌱';
+  else if(g>0)$('savQuip').textContent='Up '+money(g)+' on paper since you started putting this money aside. 🌱';
+  else if(g<0)$('savQuip').textContent='Down '+money(Math.abs(g))+' on paper. These are values you typed, not live prices.';
+  else $('savQuip').textContent='Current value matches what you put in.';
+  renderSavBreakdown();
+  renderNw();
+  renderSips();
+  renderMats();
+  renderSavChips();
+  renderHoldings();
+}
+function donutRows(rows,mt,label,color,emoji){
+  var R=15.9155,C=100,off=0,segs='';
+  rows.forEach(function(r){
+    var p=r.v/mt*100,g=Math.max(p-(rows.length>1?.6:0),.01);
+    segs+='<circle r="'+R+'" cx="21" cy="21" fill="none" stroke="'+color(r)+'" stroke-width="6" stroke-dasharray="'+g+' '+(C-g)+'" stroke-dashoffset="'+(-off)+'"></circle>';
+    off+=p;
+  });
+  var top=rows[0];
+  var html='<div class="breakdown"><div class="donut"><svg viewBox="0 0 42 42" aria-hidden="true"><circle r="'+R+'" cx="21" cy="21" fill="none" stroke="var(--line)" stroke-width="6"></circle>'+segs+'</svg><div class="ctr"><div>Top<b>'+emoji(top)+' '+Math.round(top.v/mt*100)+'%</b></div></div></div><div class="bars">';
+  rows.forEach(function(r){
+    var p=r.v/mt*100;
+    html+='<div class="bar"><div class="t"><span class="n">'+label(r)+' <span style="color:var(--muted)">'+Math.round(p)+'%</span></span><span class="a">'+money(r.v)+'</span></div><div class="track"><div class="fill" style="width:'+p.toFixed(1)+'%;background:'+color(r)+'"></div></div></div>';
+  });
+  return html+'</div></div>';
+}
+function renderSavBreakdown(){
+  var el=$('savBreakdown'), tot=totalCurrent();
+  $('donutSub').textContent=holdings.length?money(tot):'';
+  if(!holdings.length){
+    el.innerHTML='<div class="empty" style="padding:14px 6px"><div class="e">🍩</div><b>Nothing to chart yet</b>This donut is hungry for a first holding.</div>';
+    return;
+  }
+  var by={};
+  holdings.forEach(function(h){var g=TYPEMAP[h.type]?TYPEMAP[h.type].cat:'other';by[g]=(by[g]||0)+holdingCurrent(h);});
+  var rows=GROUPS.filter(function(g){return by[g.id];}).map(function(g){return {g:g,v:by[g.id]};}).sort(function(a,b){return b.v-a.v;});
+  el.innerHTML=donutRows(rows,tot,function(r){return r.g.e+' '+r.g.name;},function(r){return r.g.c;},function(r){return r.g.e;});
+}
+function renderNw(){
+  var el=$('nwChart');
+  var pts=networth.slice().sort(function(a,b){return a.m<b.m?-1:1;});
+  if(pts.length<2){
+    var cur=totalCurrent();
+    el.innerHTML='<div class="empty" style="padding:10px 6px"><div class="e">📈</div><b>'+(holdings.length?'I’ll chart this from next month':'No history yet')+'</b>'+(holdings.length?'This month’s net worth is '+money(cur)+'. Open the app in the months ahead and the bars will fill in.':'Add a holding and I’ll start a bar for this month.')+'</div>';
+    $('nwMin').textContent='';$('nwMax').textContent='';
+    return;
+  }
+  var vals=pts.map(function(x){return x.v;});
+  var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+  var lo=min===max?0:Math.min(min, min-(max-min)*0.08);
+  el.innerHTML='<div class="nw">'+pts.map(function(x,i){
+    var h=max===lo?50:Math.max(8,((x.v-lo)/(max-lo))*100);
+    var last=i===pts.length-1;
+    var lbl=MONTHS[+x.m.split('-')[1]-1].slice(0,3);
+    return '<div class="col'+(last?' last':'')+'" title="'+monthName(x.m)+': '+money(x.v)+'"><div class="b" style="height:'+h.toFixed(1)+'%"></div><div class="l">'+lbl+'</div></div>';
+  }).join('')+'</div>';
+  $('nwMin').textContent=monthName(pts[0].m)+' · '+money(pts[0].v);
+  $('nwMax').textContent=monthName(pts[pts.length-1].m)+' · '+money(pts[pts.length-1].v);
+}
+function sipEntries(){
+  var seen={},list=[];
+  holdings.forEach(function(h){
+    var r=rules.find(function(x){return x.holdingId===h.id&&isInvest(x);});
+    if(r&&(r.paused||isEnded(r)))return;
+    if(h.sip>0){
+      list.push({name:h.name,amount:h.sip,day:h.sipDay||(r?r.dom:1),type:h.type,rule:r,holding:h});
+      if(r)seen[r.id]=1;
+    }
+  });
+  rules.forEach(function(r){
+    if(!isInvest(r)||r.paused||isEnded(r)||seen[r.id])return;
+    var h=r.holdingId?holdings.find(function(x){return x.id===r.holdingId;}):null;
+    list.push({name:r.name,amount:r.amount,day:r.dom,type:h?h.type:'',rule:r,holding:h});
+  });
+  return list.sort(function(a,b){return a.day-b.day||a.name.localeCompare(b.name);});
+}
+function renderSips(){
+  var sips=sipEntries();
+  $('sipSub').textContent=sips.length?money(Math.round(sipMonthlyTotal()))+'/month':'';
+  if(!sips.length){
+    $('sipList').innerHTML='<div style="color:var(--muted);font-size:.92rem">No monthly SIPs yet. Add one on a holding, or mark a recurring rule as Investment / SIP.</div>';
+    return;
+  }
+  $('sipList').innerHTML='<div class="uplist">'+sips.map(function(s){
+    var typ=s.type?TYPEMAP[s.type]:null;
+    var due=s.rule?nextDueInvest(s.rule):occurrences({freq:'monthly',dom:s.day,start:today(),end:'',lastGen:''},addDays(today(),-1),'9999-12-31',1)[0];
+    var when=due?relDay(due):'the '+ord(s.day);
+    return '<div class="uprow"><span class="w">'+when+'</span><span class="nm">'+(typ?typ.e+' ':'💰 ')+esc(s.name)+'</span><span class="a">'+money(s.amount)+'</span></div>';
+  }).join('')+'</div>';
+}
+function renderMats(){
+  var mats=holdings.filter(function(h){return h.maturity;}).slice().sort(function(a,b){return a.maturity<b.maturity?-1:1;});
+  $('matSub').textContent=mats.length?mats.length+' dated':'';
+  if(!mats.length){
+    $('matList').innerHTML='<div style="color:var(--muted);font-size:.92rem">No maturity dates yet. You can add one when you edit a holding.</div>';
+    return;
+  }
+  $('matList').innerHTML='<div class="uplist">'+mats.map(function(h){
+    var typ=TYPEMAP[h.type];
+    return '<div class="uprow"><span class="w">'+shortDateNoYear(h.maturity)+'</span><span class="nm">'+(typ?typ.e+' ':'')+esc(h.name)+(h.rate?' · '+h.rate+'%':'')+'</span><span class="a">'+money(holdingCurrent(h))+'</span></div>';
+  }).join('')+'</div>';
+}
+function renderSavChips(){
+  var counts={all:holdings.length};
+  holdings.forEach(function(h){var g=TYPEMAP[h.type].cat;counts[g]=(counts[g]||0)+1;});
+  $('savChips').innerHTML='<button type="button" role="radio" data-g="all" aria-checked="'+(filterCat==='all')+'">All'+(counts.all?' · '+counts.all:'')+'</button>'+
+    GROUPS.map(function(g){return '<button type="button" role="radio" data-g="'+g.id+'" aria-checked="'+(filterCat===g.id)+'">'+g.e+' '+g.name+(counts[g.id]?' · '+counts[g.id]:'')+'</button>';}).join('');
+}
+$('savChips').addEventListener('click',function(e){
+  var b=e.target.closest('[data-g]');if(!b)return;
+  filterCat=b.getAttribute('data-g');renderSavChips();renderHoldings();
+});
+function renderHoldings(){
+  var list=holdings.filter(function(h){return filterCat==='all'||TYPEMAP[h.type].cat===filterCat;});
+  $('holdSub').textContent=list.length?list.length+' · '+money(list.reduce(function(a,h){return a+holdingCurrent(h);},0)):'';
+  var el=$('holdings');
+  if(!holdings.length){
+    el.innerHTML='<div class="card empty"><div class="e">🌱</div><b>No holdings yet</b>FD, mutual funds, PPF, gold, emergency cash — add whatever you want to track. Tap <b style="display:inline;margin:0">+ Add holding</b>.</div>';
+    return;
+  }
+  if(!list.length){
+    el.innerHTML='<div class="card empty"><div class="e">🔎</div><b>Nothing in this group</b>Pick another filter, or add a holding of this type.</div>';
+    return;
+  }
+  var groups=GROUPS.filter(function(g){return list.some(function(h){return TYPEMAP[h.type].cat===g.id;});});
+  el.innerHTML=groups.map(function(g){
+    var items=list.filter(function(h){return TYPEMAP[h.type].cat===g.id;}).slice().sort(function(a,b){return holdingCurrent(b)-holdingCurrent(a);});
+    return '<div class="sectitle"><b>'+g.e+' '+g.name+'</b><span>'+money(items.reduce(function(a,h){return a+holdingCurrent(h);},0))+'</span></div><div class="list" style="margin-bottom:14px">'+items.map(function(h){
+      var typ=TYPEMAP[h.type], cur=holdingCurrent(h), gamt=cur-h.invested, p=pctGain(h.invested,cur);
+      var bits=[typ.name];
+      if(h.units)bits.push(formatUnits(h.units)+' '+unitLabel(h)+(hasUnitPrice(h)?' × '+money(h.price):''));
+      if(h.rate)bits.push(h.rate+'%');
+      if(h.maturity)bits.push('matures '+shortDateNoYear(h.maturity));
+      if(h.sip)bits.push('SIP '+money(h.sip)+'/mo');
+      if(h.note)bits.push(h.note);
+      return '<div class="item"><div class="emo" style="background:'+g.c+'22">'+typ.e+'</div><div class="info"><div class="c">'+esc(h.name)+'</div><div class="n">'+esc(bits.join(' · '))+'</div></div><div class="amt">'+money(cur)+'<small class="'+gainClass(gamt)+'">'+signedMoney(gamt)+' · '+fmtPct(p)+'</small></div><div class="acts"><button data-hedit="'+h.id+'" aria-label="Edit '+esc(h.name)+'">✏️</button><button data-hdel="'+h.id+'" aria-label="Delete '+esc(h.name)+'">🗑️</button></div></div>';
+    }).join('')+'</div>';
+  }).join('');
+}
+function formatUnits(n){
+  if(Math.abs(n-Math.round(n))<1e-9)return String(Math.round(n));
+  var s=String(Math.round(n*1e6)/1e6);
+  return s;
+}
+
+/* ---------- holding form ---------- */
+function buildHoldingTypes(){
+  $('hTypeGroups').innerHTML=GROUPS.map(function(g){
+    var ts=TYPES.filter(function(t){return t.cat===g.id;});
+    return '<div class="type-group"><div class="lab">'+g.e+' '+g.name+'</div><div class="types">'+ts.map(function(t){
+      return '<button type="button" class="type" role="radio" data-type="'+t.id+'" aria-checked="false" title="'+esc(t.name)+'"><span class="ce">'+t.e+'</span>'+esc(t.short)+'</button>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+function buildSipDays(){
+  var sel=$('hSipDay'),o='';
+  for(var i=1;i<=31;i++)o+='<option value="'+i+'">'+ord(i)+(i>28?' (or last day)':'')+'</option>';
+  sel.innerHTML=o;sel.value='5';
+}
+function markHType(){
+  [].forEach.call(document.querySelectorAll('#hTypeGroups [data-type]'),function(b){
+    b.setAttribute('aria-checked',b.getAttribute('data-type')===selectedType?'true':'false');
+  });
+  var t=TYPEMAP[selectedType];
+  $('hUnitsLab').textContent='Units (optional)'+(t&&t.unit?' — '+t.unit:'');
+}
+function parseOptNumber(s){
+  s=String(s).replace(/[₹,\s]/g,'');
+  if(s===''||s==='.')return null;
+  if(!/^\d*\.?\d*$/.test(s))return NaN;
+  return parseFloat(s);
+}
+function updHComputed(){
+  var units=parseOptNumber($('hUnits').value), price=parseOptNumber($('hPrice').value);
+  var box=$('hComputed'), cur=$('hCur');
+  if(units>0&&price>=0&&isFinite(units)&&isFinite(price)){
+    var v=Math.round(units*price*100)/100;
+    cur.value=String(v);
+    cur.readOnly=true;
+    box.textContent='Current value = '+formatUnits(units)+' × '+money(price)+' = '+money(v)+'. Clear units or price to type a value instead.';
+  }else{
+    cur.readOnly=false;
+    box.textContent='';
+  }
+}
+function openHolding(h){
+  editingHolding=h||null;
+  selectedType=h?h.type:'mf-sip';
+  $('hTitle').textContent=h?'Edit holding':'Add a holding';
+  $('hSave').textContent=h?'Update':'Save';
+  $('hName').value=h?h.name:'';
+  $('hInv').value=h?String(h.invested):'';
+  $('hCur').value=h?String(holdingCurrent(h)):'';
+  $('hUnits').value=h&&h.units?String(h.units):'';
+  $('hPrice').value=h&&h.price>=0&&h.units?String(h.price):'';
+  $('hRate').value=h&&h.rate?String(h.rate):'';
+  $('hMat').value=h&&h.maturity?h.maturity:'';
+  $('hNote').value=h&&h.note?h.note:'';
+  $('hErr').textContent='';
+  var sipOn=!!(h&&h.sip>0);
+  $('hSip').checked=sipOn;
+  $('hSipOpts').hidden=!sipOn;
+  $('hSipAmt').value=sipOn?String(h.sip):'';
+  $('hSipDay').value=String((h&&h.sipDay)||5);
+  markHType();
+  updHComputed();
+  open($('hsheet'));
+  if(!h)setTimeout(function(){$('hName').focus();},250);
+}
+$('hTypeGroups').addEventListener('click',function(e){
+  var b=e.target.closest('[data-type]');if(!b)return;
+  selectedType=b.getAttribute('data-type');markHType();
+});
+$('hSip').addEventListener('change',function(){$('hSipOpts').hidden=!$('hSip').checked;});
+['hUnits','hPrice'].forEach(function(id){
+  $(id).addEventListener('input',updHComputed);
+  $(id).addEventListener('change',updHComputed);
+});
+$('hCancel').onclick=close;
+function holdingAmountError(a,label){
+  if(a==null||!isFinite(a)||a<0)return 'Enter the '+label+'.';
+  if(a>1000000000)return 'That’s over ₹100 crore. Please double-check. 🏠';
+  return '';
+}
+$('hsheet').addEventListener('submit',function(e){
+  e.preventDefault();
+  var name=$('hName').value.trim();
+  var inv=parseOptNumber($('hInv').value);
+  var cur=parseOptNumber($('hCur').value);
+  var units=parseOptNumber($('hUnits').value);
+  var price=parseOptNumber($('hPrice').value);
+  if(!name){$('hErr').textContent='Give it a name.';$('hName').focus();return;}
+  if(!TYPEMAP[selectedType]){$('hErr').textContent='Pick a type.';return;}
+  if(inv==null)inv=0;
+  var err=holdingAmountError(inv,'amount invested');
+  if(!err&&(units!=null&&!isFinite(units)||units===0))err='Units should be a positive number, or left blank.';
+  if(!err&&price!=null&&!isFinite(price))err='Price / NAV should be a number, or left blank.';
+  if(units>0&&price>=0&&isFinite(units)&&isFinite(price))cur=Math.round(units*price*100)/100;
+  if(cur==null)cur=inv;
+  if(!err)err=holdingAmountError(cur,'current value');
+  if(!err&&inv===0&&cur===0&&!(units>0))err='Enter the amount invested or the current value.';
+  if(!err&&$('hSip').checked){
+    var sa=parseAmount($('hSipAmt').value);
+    if(!(sa>0))err='Enter the monthly SIP amount, or turn the SIP switch off.';
+  }
+  if(err){$('hErr').textContent=err;return;}
+  var raw={
+    id:editingHolding?editingHolding.id:uid(),
+    name:name,type:selectedType,invested:inv,current:cur,
+    note:$('hNote').value.trim(),
+    createdAt:editingHolding?editingHolding.createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
+  if(units>0)raw.units=units;
+  if(price!=null&&isFinite(price)&&price>=0&&units>0)raw.price=price;
+  var rate=parseOptNumber($('hRate').value);
+  if(rate>0)raw.rate=rate;
+  if($('hMat').value)raw.maturity=$('hMat').value;
+  if(editingHolding&&editingHolding.started)raw.started=editingHolding.started;
+  else raw.started=today();
+  if($('hSip').checked){
+    raw.sip=parseAmount($('hSipAmt').value);
+    raw.sipDay=parseInt($('hSipDay').value,10)||1;
+  }
+  var h=cleanHolding(raw);
+  if(editingHolding){
+    holdings=holdings.map(function(x){return x.id===h.id?h:x;});
+    syncRuleFromHolding(h,true);
+    toast('Holding updated ✏️');
+  }else{
+    holdings.push(h);
+    syncRuleFromHolding(h,false);
+    toast('Added '+h.name+' 🌱');
+  }
+  save();close();render();
+});
+$('holdings').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.hedit){openHolding(holdings.find(function(x){return x.id===b.dataset.hedit;}));}
+  else if(b.dataset.hdel){
+    var h=holdings.find(function(x){return x.id===b.dataset.hdel;});if(!h)return;
+    var linked=rules.filter(function(r){return r.holdingId===h.id;});
+    var msg='Delete “'+h.name+'” ('+money(holdingCurrent(h))+')?';
+    if(linked.length)msg+='\n\nIts SIP rule will be removed too. That will not delete any expenses.';
+    if(!confirm(msg))return;
+    holdings=holdings.filter(function(x){return x.id!==h.id;});
+    rules=rules.filter(function(r){return r.holdingId!==h.id;});
+    save();render();toast('Holding deleted. Poof! 💨');
+  }
+});
+function syncRuleFromHolding(h,editing){
+  var existing=rules.find(function(r){return r.holdingId===h.id&&isInvest(r);});
+  if(!(h.sip>0)){
+    if(existing){rules=rules.filter(function(r){return r.id!==existing.id;});}
+    return;
+  }
+  if(existing){
+    existing.name=h.name;existing.amount=h.sip;existing.dom=h.sipDay||existing.dom;existing.freq='monthly';existing.kind='invest';existing.holdingId=h.id;
+    return;
+  }
+  var nr=cleanRule({id:uid(),name:h.name,amount:h.sip,category:'Other',freq:'monthly',dom:h.sipDay||1,start:h.started||today(),end:'',kind:'invest',holdingId:h.id,paused:false,lastGen:'',createdAt:Date.now()});
+  rules.push(nr);
+}
+function syncHoldingFromRule(r){
+  if(!r.holdingId||!isInvest(r))return;
+  var h=holdings.find(function(x){return x.id===r.holdingId;});
+  if(!h)return;
+  if(r.paused||isEnded(r)){delete h.sip;delete h.sipDay;}
+  else if(r.freq==='monthly'){h.sip=r.amount;h.sipDay=r.dom;}
+  else {h.sip=Math.round(r.amount*(PER_MONTH[r.freq]||0)*100)/100;h.sipDay=r.dom;}
+  h.updatedAt=Date.now();
+}
+
+$('exSavCsv').onclick=function(){
+  if(!holdings.length){toast('No holdings to export yet 🙃');return;}
+  var rows=[['Name','Category','Type','Invested (INR)','Current value (INR)','Gain (INR)','Gain %','Units','Unit label','Price per unit (INR)','Interest rate %','Maturity','Monthly SIP (INR)','SIP day','Note']];
+  holdings.slice().sort(function(a,b){
+    var ga=TYPEMAP[a.type].cat,gb=TYPEMAP[b.type].cat;
+    return ga<gb?-1:ga>gb?1:a.name.localeCompare(b.name);
+  }).forEach(function(h){
+    var typ=TYPEMAP[h.type],g=GROUPMAP[typ.cat],cur=holdingCurrent(h),gain=cur-h.invested;
+    rows.push([
+      h.name,g.name,typ.name,h.invested.toFixed(2),cur.toFixed(2),gain.toFixed(2),
+      pctGain(h.invested,cur).toFixed(2),
+      h.units?String(h.units):'',h.units?unitLabel(h):'',
+      hasUnitPrice(h)?String(h.price):'',
+      h.rate?String(h.rate):'',
+      csvDate(h.maturity||''),
+      h.sip?h.sip.toFixed(2):'',
+      h.sip?String(h.sipDay):'',
+      h.note||''
+    ]);
+  });
+  download('savings-'+today()+'.csv','\ufeff'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n'),'text/csv;charset=utf-8');
+  toast('Savings CSV exported 💰');
 };
 
 /* ---------- toast ---------- */
@@ -1205,24 +1905,26 @@ try{
   var i192=makeIcon(192),i512=makeIcon(512);
   $('appleIcon').href=makeIcon(180);
   var base=location.href.split('#')[0];
-  var man={name:'Paisa Diary',short_name:'Paisa Diary',description:'Daily expense tracker (₹)',start_url:base,scope:base.replace(/[^\/]*$/,''),display:'standalone',background_color:'#f4f6f5',theme_color:'#0f9d74',
+  var man={name:'Paisa Diary',short_name:'Paisa Diary',description:'Daily expenses and savings (₹)',start_url:base,scope:base.replace(/[^\/]*$/,''),display:'standalone',background_color:'#f4f6f5',theme_color:'#0f9d74',
     icons:[{src:i192,sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:i512,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
   $('manifestLink').href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
 }catch(e){}
 
 /* ---------- init ---------- */
 buildCats($('cats'));buildCats($('rCats'));buildFreq($('fFreq'));buildFreq($('rFreq'));
+buildHoldingTypes();buildSipDays();
 load();
 var caught=runRecurring();
 render();
 if(location.hash==='#recurring')setTab('rec');
+else if(location.hash==='#savings')setTab('sav');
 if(caught)setTimeout(function(){toast('🔁 Logged '+caught+' recurring payment'+(caught>1?'s':'')+' while you were away');},400);
 // catch up when the app becomes visible again, and if it's left open past midnight
 var lastSeenDay=today();
 function wake(){var n=runRecurring();lastSeenDay=today();render();if(n)toast('🔁 Logged '+n+' recurring payment'+(n>1?'s':''));}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)wake();});
 setInterval(function(){if(!document.hidden&&today()!==lastSeenDay)wake();},60000);
-window.addEventListener('storage',function(e){if(e.key===KEY||e.key===RKEY){load();render();}});
+window.addEventListener('storage',function(e){if(e.key===KEY||e.key===RKEY||e.key===HKEY||e.key===NKEY){load();render();}});
 })();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
 </script>
