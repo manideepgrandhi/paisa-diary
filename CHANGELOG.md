@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-26 — One amount, friendlier typing
+
+- A holding now has a single **Amount**. Current value, gain/loss, units and price / NAV are gone. Existing holdings keep the old invested amount; current value and units from older data are ignored. Net worth is the sum of those amounts, and the gain/loss card is removed.
+- Amount fields on the expense and holding forms are one big ₹ box (`type=text`, `inputmode=decimal`, no spinner, no `e`). Figures get Indian comma grouping as you type (1,00,000), and stay focused as the first field.
+- Quick-add chips under the box add +100, +500, +1,000 or +5,000 to the amount.
+- Pasting values like ₹1,200, 1200.50 or 1.2k (and L / lakh) is accepted. The stored value is a plain number.
+- Older JSON backups that still have current or units fields still import. The savings CSV now has one Amount column.
+
+
 ## 2026-11-26 — Amount first, and custom Other names
 
 - The amount field is at the top of both the Add / Edit expense form and the Add / Edit holding form, and it is focused with a numeric keyboard (`inputmode=decimal`) when the sheet opens.
