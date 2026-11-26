@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-26 — Amount first, and custom Other names
+
+- The amount field is at the top of both the Add / Edit expense form and the Add / Edit holding form, and it is focused with a numeric keyboard (`inputmode=decimal`) when the sheet opens.
+- Both the expense category picker and the savings type dropdown have an **Other** option. Choosing it shows a box for a custom name (for example, Pet care). Saved names are remembered and offered as choices next time. They live in this browser and are included in the JSON backup; older backups still import.
+- Custom expense categories appear in totals, the breakdown chart, and the expenses CSV. Custom savings types are grouped under Other for the chart and filters, and their name is shown on the holding and in the savings CSV.
+
+
+## 2026-11-26 — Holding type dropdown
+
+- The Add / Edit holding sheet now has one type dropdown, grouped as Common (Mutual Fund, Stocks, FD, PPF, EPF, Gold) and then the rest by category.
+- Interest rate and maturity fields show only for deposits and similar schemes. Units and price / NAV show only for market and metal types (and if a holding already has units).
+- Existing holdings and the Savings filter chips are unchanged.
+
+
 ## 2026-11-26 — Savings tab
 
 - New **Savings** tab for holdings (mutual funds, stocks, ETFs, FD, RD, PPF, EPF, VPF, NPS, SSY, NSC, KVP, post office schemes, SCSS, SGB, gold, silver, bonds, corporate FD, real estate, savings account, emergency cash, crypto, ULIP, chit fund, and other).

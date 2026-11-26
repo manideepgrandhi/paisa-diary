@@ -4,15 +4,15 @@ A small, mobile-friendly tracker for daily expenses and savings. It lives at [ma
 
 ## What it does
 
-- **Expenses** — log spending by category, with today / week / month totals and a breakdown chart.
+- **Expenses** — log spending by category, with today / week / month totals and a breakdown chart. Choose Other to add a custom category (for example, Pet care); saved names appear as choices next time and show in totals, the chart, and the CSV.
 - **Recurring** — rent, EMIs, bills, SIPs. Expense rules are auto-logged when you open the app. Investment / SIP rules are not counted as spend; they show on the Savings tab instead.
-- **Savings** — holdings such as mutual funds, stocks, FD, PPF, EPF, NPS, gold, cash and more. Type in the current value, or fill units and price / NAV and the app will multiply them for you. Net worth is the sum of current holdings. “This month spent” is shown beside it, not subtracted again.
+- **Savings** — holdings such as mutual funds, stocks, FD, PPF, EPF, NPS, gold, cash and more. Type in the current value, or fill units and price / NAV and the app will multiply them for you. Choose Other to add a custom type; it is grouped under Other in the chart and filters. Net worth is the sum of current holdings. “This month spent” is shown beside it, not subtracted again.
 
 ## Backup
 
 Your data can disappear if you clear the site’s data or switch browsers. Use the ⋯ menu now and then:
 
-- **JSON backup** — download and keep a file. Import it later (or on another device). Older backups without savings still import; they simply have no holdings.
+- **JSON backup** — download and keep a file. Import it later (or on another device). Older backups without savings or custom names still import; they simply have no holdings or remembered custom names.
 - **Expenses CSV** and **Savings CSV** — for Excel or Sheets. Dates in the savings file are written so Excel will not turn them into date serials.
 
 ## Running it locally
