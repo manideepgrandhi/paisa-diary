@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-26 — Holding type dropdown
+
+- The Add / Edit holding sheet now has one type dropdown, grouped as Common (Mutual Fund, Stocks, FD, PPF, EPF, Gold) and then the rest by category.
+- Interest rate and maturity fields show only for deposits and similar schemes. Units and price / NAV show only for market and metal types (and if a holding already has units).
+- Existing holdings and the Savings filter chips are unchanged.
+
+
 ## 2026-11-26 — Savings tab
 
 - New **Savings** tab for holdings (mutual funds, stocks, ETFs, FD, RD, PPF, EPF, VPF, NPS, SSY, NSC, KVP, post office schemes, SCSS, SGB, gold, silver, bonds, corporate FD, real estate, savings account, emergency cash, crypto, ULIP, chit fund, and other).

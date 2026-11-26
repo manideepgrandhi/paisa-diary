@@ -212,12 +212,7 @@ html[data-theme=dark] .tcount{color:#06231a}
 .callout .ue{font-size:1.4rem;line-height:1.2}
 .callout .ut{flex:1;min-width:0;font-size:.9rem}
 .callout .ut b{display:block;font-size:.95rem;margin-bottom:2px}
-.type-group{margin-top:12px}
-.type-group .lab{margin-bottom:6px}
-.types{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.type{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:7px 4px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:.7rem;font-weight:650;text-align:center;line-height:1.2}
-.type .ce{font-size:1.2rem}
-.type[aria-checked="true"]{border-color:var(--brand);background:var(--brand-soft)}
+#hType{width:100%}
 .hold-note{color:var(--muted);font-size:.8rem;margin:0 0 8px}
 .computed{margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--brand-soft);font-size:.82rem}
 .computed:empty{display:none}
@@ -796,8 +791,8 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
     <input id="hName" maxlength="80" placeholder="e.g. SBI 3-year FD, Parag Parikh Flexi Cap" autocomplete="off" enterkeyhint="next">
   </div>
   <div class="field">
-    <span class="lab" id="hTypeLab">Type</span>
-    <div id="hTypeGroups"></div>
+    <label for="hType">Type</label>
+    <select id="hType"></select>
   </div>
   <div class="two">
     <div class="field">
@@ -811,28 +806,32 @@ window.MGSearch={open:open,close:close,load:load,catalog:CATALOG,siteScore:siteS
   </div>
   <div class="computed" id="hComputed"></div>
   <div class="err" id="hErr"></div>
-  <div class="two">
-    <div class="field">
-      <label for="hUnits" id="hUnitsLab">Units (optional)</label>
-      <input id="hUnits" inputmode="decimal" placeholder="e.g. 50 shares, 10.25 units" autocomplete="off">
+  <div id="hUnitsWrap">
+    <div class="two">
+      <div class="field">
+        <label for="hUnits" id="hUnitsLab">Units (optional)</label>
+        <input id="hUnits" inputmode="decimal" placeholder="e.g. 50 shares, 10.25 units" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="hPrice">Price / NAV per unit (optional)</label>
+        <div class="amtwrap"><span class="r">₹</span><input id="hPrice" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+      </div>
     </div>
-    <div class="field">
-      <label for="hPrice">Price / NAV per unit (optional)</label>
-      <div class="amtwrap"><span class="r">₹</span><input id="hPrice" inputmode="decimal" autocomplete="off" placeholder="0"></div>
-    </div>
+    <p class="hint" style="text-align:left;margin-top:8px">If you fill both units and price, current value becomes units × price. Otherwise type the current value yourself.</p>
   </div>
-  <p class="hint" style="text-align:left;margin-top:8px">If you fill both units and price, current value becomes units × price. Otherwise type the current value yourself.</p>
-  <div class="two">
-    <div class="field">
-      <label for="hRate">Interest rate (optional)</label>
-      <input id="hRate" inputmode="decimal" placeholder="e.g. 7.1" autocomplete="off">
+  <div id="hRateWrap">
+    <div class="two">
+      <div class="field">
+        <label for="hRate">Interest rate (optional)</label>
+        <input id="hRate" inputmode="decimal" placeholder="e.g. 7.1" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="hMat">Matures (optional)</label>
+        <input id="hMat" type="date">
+      </div>
     </div>
-    <div class="field">
-      <label for="hMat">Matures (optional)</label>
-      <input id="hMat" type="date">
-    </div>
+    <p class="hint" style="text-align:left;margin-top:8px">Rate and maturity are for FDs, PPF, NSC, SGB and similar schemes.</p>
   </div>
-  <p class="hint" style="text-align:left;margin-top:8px">Rate and maturity are handy for FD, RD, PPF, NSC, SGB and similar. Leave them blank for stocks and funds.</p>
   <div class="field">
     <label class="switchrow" for="hSip"><span>🔁 This is a monthly SIP or deposit<small>It will show on the Recurring tab as an investment, not an expense</small></span><input type="checkbox" id="hSip" class="switch"></label>
     <div id="hSipOpts" hidden>
@@ -923,6 +922,14 @@ var TYPES=[
   {id:'other',name:'Other',short:'Other',cat:'other',e:'📦'}
 ];
 var TYPEMAP={};TYPES.forEach(function(t){TYPEMAP[t.id]=t;});
+// Shown first in the type dropdown. Each type still appears only once.
+var COMMON_TYPES=['mf-sip','mf-lumpsum','stocks','fd','ppf','epf','gold'];
+// Interest rate / maturity fields
+var TENURE_TYPES={'fd':1,'rd':1,'corp-fd':1,'bonds':1,'ppf':1,'ssy':1,'nsc':1,'kvp':1,'po-mis':1,'scss':1,'po-td':1,'sgb':1,'insurance':1};
+// Units and price / NAV fields
+var UNIT_TYPES={'mf-sip':1,'mf-lumpsum':1,'stocks':1,'etf':1,'gold':1,'silver':1,'sgb':1,'crypto':1};
+function typeHasTenure(id,h){return !!TENURE_TYPES[id]||!!(h&&(h.rate||h.maturity));}
+function typeHasUnits(id,h){return !!UNIT_TYPES[id]||!!(h&&h.units>0);}
 var $=function(id){return document.getElementById(id);};
 
 /* ---------- money & dates ---------- */
@@ -1698,12 +1705,22 @@ function formatUnits(n){
 
 /* ---------- holding form ---------- */
 function buildHoldingTypes(){
-  $('hTypeGroups').innerHTML=GROUPS.map(function(g){
-    var ts=TYPES.filter(function(t){return t.cat===g.id;});
-    return '<div class="type-group"><div class="lab">'+g.e+' '+g.name+'</div><div class="types">'+ts.map(function(t){
-      return '<button type="button" class="type" role="radio" data-type="'+t.id+'" aria-checked="false" title="'+esc(t.name)+'"><span class="ce">'+t.e+'</span>'+esc(t.short)+'</button>';
-    }).join('')+'</div></div>';
-  }).join('');
+  var used={}, html='';
+  html+='<optgroup label="Common">';
+  COMMON_TYPES.forEach(function(id){
+    var typ=TYPEMAP[id];if(!typ)return;
+    used[id]=1;
+    html+='<option value="'+typ.id+'">'+esc(typ.name)+'</option>';
+  });
+  html+='</optgroup>';
+  GROUPS.forEach(function(g){
+    var ts=TYPES.filter(function(t){return t.cat===g.id&&!used[t.id];});
+    if(!ts.length)return;
+    html+='<optgroup label="'+esc(g.name)+'">';
+    ts.forEach(function(typ){html+='<option value="'+typ.id+'">'+esc(typ.name)+'</option>';});
+    html+='</optgroup>';
+  });
+  $('hType').innerHTML=html;
 }
 function buildSipDays(){
   var sel=$('hSipDay'),o='';
@@ -1711,11 +1728,18 @@ function buildSipDays(){
   sel.innerHTML=o;sel.value='5';
 }
 function markHType(){
-  [].forEach.call(document.querySelectorAll('#hTypeGroups [data-type]'),function(b){
-    b.setAttribute('aria-checked',b.getAttribute('data-type')===selectedType?'true':'false');
-  });
-  var t=TYPEMAP[selectedType];
-  $('hUnitsLab').textContent='Units (optional)'+(t&&t.unit?' — '+t.unit:'');
+  if(TYPEMAP[selectedType])$('hType').value=selectedType;
+  updHFields();
+}
+function updHFields(){
+  var typ=TYPEMAP[selectedType];
+  var showU=typeHasUnits(selectedType,editingHolding);
+  var showT=typeHasTenure(selectedType,editingHolding);
+  $('hUnitsWrap').hidden=!showU;
+  $('hRateWrap').hidden=!showT;
+  $('hUnitsLab').textContent='Units (optional)'+(typ&&typ.unit?' — '+typ.unit:'');
+  if(showU)updHComputed();
+  else{$('hCur').readOnly=false;$('hComputed').textContent='';}
 }
 function parseOptNumber(s){
   s=String(s).replace(/[₹,\s]/g,'');
@@ -1760,9 +1784,9 @@ function openHolding(h){
   open($('hsheet'));
   if(!h)setTimeout(function(){$('hName').focus();},250);
 }
-$('hTypeGroups').addEventListener('click',function(e){
-  var b=e.target.closest('[data-type]');if(!b)return;
-  selectedType=b.getAttribute('data-type');markHType();
+$('hType').addEventListener('change',function(){
+  selectedType=this.value;
+  updHFields();
 });
 $('hSip').addEventListener('change',function(){$('hSipOpts').hidden=!$('hSip').checked;});
 ['hUnits','hPrice'].forEach(function(id){
@@ -1786,12 +1810,15 @@ $('hsheet').addEventListener('submit',function(e){
   if(!TYPEMAP[selectedType]){$('hErr').textContent='Pick a type.';return;}
   if(inv==null)inv=0;
   var err=holdingAmountError(inv,'amount invested');
-  if(!err&&(units!=null&&!isFinite(units)||units===0))err='Units should be a positive number, or left blank.';
-  if(!err&&price!=null&&!isFinite(price))err='Price / NAV should be a number, or left blank.';
-  if(units>0&&price>=0&&isFinite(units)&&isFinite(price))cur=Math.round(units*price*100)/100;
+  var useUnits=typeHasUnits(selectedType,editingHolding);
+  if(useUnits){
+    if(!err&&(units!=null&&!isFinite(units)||units===0))err='Units should be a positive number, or left blank.';
+    if(!err&&price!=null&&!isFinite(price))err='Price / NAV should be a number, or left blank.';
+    if(units>0&&price>=0&&isFinite(units)&&isFinite(price))cur=Math.round(units*price*100)/100;
+  }else{units=null;price=null;}
   if(cur==null)cur=inv;
   if(!err)err=holdingAmountError(cur,'current value');
-  if(!err&&inv===0&&cur===0&&!(units>0))err='Enter the amount invested or the current value.';
+  if(!err&&inv===0&&cur===0&&!(useUnits&&units>0))err='Enter the amount invested or the current value.';
   if(!err&&$('hSip').checked){
     var sa=parseAmount($('hSipAmt').value);
     if(!(sa>0))err='Enter the monthly SIP amount, or turn the SIP switch off.';
@@ -1804,11 +1831,15 @@ $('hsheet').addEventListener('submit',function(e){
     createdAt:editingHolding?editingHolding.createdAt:Date.now(),
     updatedAt:Date.now()
   };
-  if(units>0)raw.units=units;
-  if(price!=null&&isFinite(price)&&price>=0&&units>0)raw.price=price;
-  var rate=parseOptNumber($('hRate').value);
-  if(rate>0)raw.rate=rate;
-  if($('hMat').value)raw.maturity=$('hMat').value;
+  if(typeHasUnits(selectedType,editingHolding)){
+    if(units>0)raw.units=units;
+    if(price!=null&&isFinite(price)&&price>=0&&units>0)raw.price=price;
+  }
+  if(typeHasTenure(selectedType,editingHolding)){
+    var rate=parseOptNumber($('hRate').value);
+    if(rate>0)raw.rate=rate;
+    if($('hMat').value)raw.maturity=$('hMat').value;
+  }
   if(editingHolding&&editingHolding.started)raw.started=editingHolding.started;
   else raw.started=today();
   if($('hSip').checked){
